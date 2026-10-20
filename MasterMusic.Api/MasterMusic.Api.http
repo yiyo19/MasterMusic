@@ -1,0 +1,6 @@
+@MasterMusic.Api_HostAddress = http://localhost:5169
+
+GET {{MasterMusic.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
