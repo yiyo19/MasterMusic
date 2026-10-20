@@ -1,3 +1,4 @@
+using MasterMusic.Api.Middlewares;
 using MasterMusic.Api.Interfaces;
 using MasterMusic.Api.Repositories;
 using MasterMusic.Api.Data;
@@ -25,6 +26,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
