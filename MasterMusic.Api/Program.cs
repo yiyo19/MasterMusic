@@ -83,6 +83,11 @@ builder.Services.AddDbContext<MasterMusicContext>(options =>
 builder.Services.AddScoped<IInstrumentoRepository, InstrumentoRepository>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MasterMusicContext>();
+    await SeedData.InicializarAsync(db, app.Configuration);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

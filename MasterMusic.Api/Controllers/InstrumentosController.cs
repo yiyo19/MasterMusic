@@ -42,11 +42,13 @@ namespace MasterMusic.Api.Controllers
             return Ok(instrumento);
         }
 
+
         // POST: api/v1.0/Instrumentos
-        // Requiere estar autenticado con ROL 'Cliente' o 'Administrador'
+        // Exclusivo para ROL 'Administrador'
         [HttpPost]
-        [Authorize(Roles = "Cliente,Administrador")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Create([FromBody] Instrumento instrumento)
+
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
