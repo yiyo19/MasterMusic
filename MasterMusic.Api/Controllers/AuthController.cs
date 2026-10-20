@@ -33,16 +33,19 @@ namespace MasterMusic.Api.Controllers
                 return BadRequest(new { mensaje = "El correo electrónico ya se encuentra registrado." });
             }
 
-            // Encriptar la contraseña con BCrypt
+  
             string claveHash = BCrypt.Net.BCrypt.HashPassword(dto.Clave);
 
-            // Asignar rol por defecto (busca 'Cliente' o asigna el primero disponible)
+           
             var rolDefecto = await _context.Roles.FirstOrDefaultAsync(r => r.Nombre == "Cliente")
                              ?? await _context.Roles.FirstOrDefaultAsync();
 
+            
             if (rolDefecto == null)
             {
-                return BadRequest(new { mensaje = "No se encontró ningún rol configurado en la base de datos." });
+                rolDefecto = new Rol { Nombre = "Cliente" };
+                _context.Roles.Add(rolDefecto);
+                await _context.SaveChangesAsync();
             }
 
             var usuario = new Usuario
