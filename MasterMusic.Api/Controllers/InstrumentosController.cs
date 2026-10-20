@@ -1,10 +1,12 @@
-﻿using MasterMusic.Api.Entities;
+﻿using Asp.Versioning;
+using MasterMusic.Api.Entities;
 using MasterMusic.Api.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MasterMusic.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class InstrumentosController : ControllerBase
     {
