@@ -31,22 +31,21 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
+    // Definición del esquema de seguridad Bearer
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
+        Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Ingresa únicamente tu token JWT devuelto por el Login."
     });
 
-    options.AddSecurityRequirement(doc => new OpenApiSecurityRequirement
+    // Requerimiento global de seguridad compatible con .NET 10
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecuritySchemeReference("Bearer"),
-            new List<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 });
 
@@ -70,10 +69,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Configuración de la conexión a SQL Server usando la variable de entorno
+// Configuración de la conexión a SQL Server
 builder.Services.AddDbContext<MasterMusicContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MasterMusic")));
 

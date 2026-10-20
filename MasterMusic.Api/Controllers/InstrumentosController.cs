@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using MasterMusic.Api.Entities;
 using MasterMusic.Api.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MasterMusic.Api.Controllers
@@ -18,16 +19,20 @@ namespace MasterMusic.Api.Controllers
             _repository = repository;
         }
 
-        // GET: api/Instrumentos
+        // GET: api/v1.0/Instrumentos
+        // Acceso público: Cualquier usuario puede consultar la lista
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var instrumentos = await _repository.GetAllAsync();
             return Ok(instrumentos);
         }
 
-        // GET: api/Instrumentos/5
+        // GET: api/v1.0/Instrumentos/5
+        // Acceso público: Cualquier usuario puede ver el detalle
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var instrumento = await _repository.GetByIdAsync(id);
@@ -37,19 +42,23 @@ namespace MasterMusic.Api.Controllers
             return Ok(instrumento);
         }
 
-        // POST: api/Instrumentos
+        // POST: api/v1.0/Instrumentos
+        // Requiere estar autenticado con ROL 'Cliente' o 'Administrador'
         [HttpPost]
+        [Authorize(Roles = "Cliente,Administrador")]
         public async Task<IActionResult> Create([FromBody] Instrumento instrumento)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var nuevoInstrumento = await _repository.AddAsync(instrumento);
-            return CreatedAtAction(nameof(GetById), new { id = nuevoInstrumento.IdInstrumento }, nuevoInstrumento);
+            return CreatedAtAction(nameof(GetById), new { id = nuevoInstrumento.IdInstrumento, version = "1.0" }, nuevoInstrumento);
         }
 
-        // PUT: api/Instrumentos/5
+        // PUT: api/v1.0/Instrumentos/5
+        // Exclusivo para ROL 'Administrador'
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Update(int id, [FromBody] Instrumento instrumento)
         {
             if (id != instrumento.IdInstrumento)
@@ -65,8 +74,10 @@ namespace MasterMusic.Api.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Instrumentos/5
+        // DELETE: api/v1.0/Instrumentos/5
+        // Exclusivo para ROL 'Administrador'
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int id)
         {
             var eliminado = await _repository.DeleteAsync(id);
@@ -77,4 +88,3 @@ namespace MasterMusic.Api.Controllers
         }
     }
 }
-
