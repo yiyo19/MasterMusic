@@ -32,12 +32,12 @@ namespace MasterMusic.Tests
         [Fact]
         public async Task Login_ClaveIncorrecta_Devuelve401()
         {
-            // Primero existe el usuario...
+            
             var correo = $"cliente_{Guid.NewGuid():N}@prueba.cl";
             await _client.PostAsJsonAsync($"{AyudaPruebas.RutaAuth}/registro",
                 new { correo, clave = "Cliente123!", nombreCompleto = "Cliente" });
 
-            // ...pero entra con otra clave
+            
             var respuesta = await _client.PostAsJsonAsync($"{AyudaPruebas.RutaAuth}/login",
                 new { correo, clave = "ClaveEquivocada9!" });
 

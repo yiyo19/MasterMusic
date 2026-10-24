@@ -7,14 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MasterMusic.Tests
 {
-    // Arranca la API real dentro de la prueba, pero con una base de datos en memoria
+    
     public class MasterMusicFactory : WebApplicationFactory<Program>
     {
         private readonly string _nombreBd = Guid.NewGuid().ToString();
 
         public MasterMusicFactory()
         {
-            // Program.cs exige esta llave al arrancar; en pruebas usamos una propia
+            
             Environment.SetEnvironmentVariable("Jwt__Key",
                 "ClaveSoloParaPruebasMasterMusic_1234567890_abcdef!");
         }
@@ -23,7 +23,7 @@ namespace MasterMusic.Tests
         {
             builder.ConfigureServices(services =>
             {
-                // Quitamos lo que AddDbContext registró para SQL Server
+                
                 var aQuitar = services.Where(d =>
                     d.ServiceType == typeof(DbContextOptions<MasterMusicContext>) ||
                     (d.ServiceType.IsGenericType &&
@@ -34,13 +34,13 @@ namespace MasterMusic.Tests
                 foreach (var d in aQuitar)
                     services.Remove(d);
 
-                // Y registramos el mismo DbContext, pero en memoria
+               
                 services.AddDbContext<MasterMusicContext>(options =>
                     options.UseInMemoryDatabase(_nombreBd));
             });
         }
 
-        // Inserta un usuario Administrador directamente en la base en memoria
+        
         public void CrearAdministrador(string correo, string clave)
         {
             using var scope = Services.CreateScope();
