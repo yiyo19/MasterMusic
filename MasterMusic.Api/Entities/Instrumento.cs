@@ -41,9 +41,9 @@ namespace MasterMusic.Api.Entities
         public int IdMarca { get; set; }
 
         [ForeignKey(nameof(IdCategoria))]
-        public Categoria Categoria { get; set; } = null!;
+        public Categoria? Categoria { get; set; }
 
         [ForeignKey(nameof(IdMarca))]
-        public Marca Marca { get; set; } = null!;
+        public Marca? Marca { get; set; }
     }
 }
