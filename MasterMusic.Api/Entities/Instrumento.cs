@@ -20,9 +20,12 @@ namespace MasterMusic.Api.Entities
         public string? Modelo { get; set; }
 
         [Column("precio")]
+        [Range(1, int.MaxValue, ErrorMessage = "El precio debe ser mayor a 0.")]
         public int Precio { get; set; }
+        
 
         [Column("stock")]
+        [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo.")]
         public int Stock { get; set; }
 
         [Column("descripcion")]
