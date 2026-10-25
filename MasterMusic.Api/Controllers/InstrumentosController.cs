@@ -13,14 +13,13 @@ namespace MasterMusic.Api.Controllers
     {
         private readonly IInstrumentoRepository _repository;
 
-        // Inyección de dependencias del Repositorio
+        
         public InstrumentosController(IInstrumentoRepository repository)
         {
             _repository = repository;
         }
 
-        // GET: api/v1.0/Instrumentos
-        // Acceso público: Cualquier usuario puede consultar la lista
+        
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
@@ -29,8 +28,7 @@ namespace MasterMusic.Api.Controllers
             return Ok(instrumentos);
         }
 
-        // GET: api/v1.0/Instrumentos/5
-        // Acceso público: Cualquier usuario puede ver el detalle
+        
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
@@ -42,23 +40,25 @@ namespace MasterMusic.Api.Controllers
             return Ok(instrumento);
         }
 
-
-        // POST: api/v1.0/Instrumentos
-        // Exclusivo para ROL 'Administrador'
+       
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Create([FromBody] Instrumento instrumento)
-
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!await _repository.CategoriaExisteAsync(instrumento.IdCategoria))
+                return BadRequest(new { message = "La categoría indicada no existe." });
+
+            if (!await _repository.MarcaExisteAsync(instrumento.IdMarca))
+                return BadRequest(new { message = "La marca indicada no existe." });
 
             var nuevoInstrumento = await _repository.AddAsync(instrumento);
             return CreatedAtAction(nameof(GetById), new { id = nuevoInstrumento.IdInstrumento, version = "1.0" }, nuevoInstrumento);
         }
 
-        // PUT: api/v1.0/Instrumentos/5
-        // Exclusivo para ROL 'Administrador'
+        
         [HttpPut("{id}")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Update(int id, [FromBody] Instrumento instrumento)
@@ -69,6 +69,15 @@ namespace MasterMusic.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!await _repository.ExisteAsync(id))
+                return NotFound(new { message = "Instrumento no encontrado" });
+
+            if (!await _repository.CategoriaExisteAsync(instrumento.IdCategoria))
+                return BadRequest(new { message = "La categoría indicada no existe." });
+
+            if (!await _repository.MarcaExisteAsync(instrumento.IdMarca))
+                return BadRequest(new { message = "La marca indicada no existe." });
+
             var actualizado = await _repository.UpdateAsync(instrumento);
             if (!actualizado)
                 return NotFound(new { message = "Instrumento no encontrado o no se pudo actualizar" });
@@ -76,8 +85,7 @@ namespace MasterMusic.Api.Controllers
             return NoContent();
         }
 
-        // DELETE: api/v1.0/Instrumentos/5
-        // Exclusivo para ROL 'Administrador'
+        
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Delete(int id)

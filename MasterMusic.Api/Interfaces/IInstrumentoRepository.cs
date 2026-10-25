@@ -9,5 +9,8 @@ namespace MasterMusic.Api.Interfaces
         Task<Instrumento> AddAsync(Instrumento instrumento);
         Task<bool> UpdateAsync(Instrumento instrumento);
         Task<bool> DeleteAsync(int id);
+        Task<bool> ExisteAsync(int id);
+        Task<bool> CategoriaExisteAsync(int idCategoria);
+        Task<bool> MarcaExisteAsync(int idMarca);
     }
 }

@@ -51,5 +51,20 @@ namespace MasterMusic.Api.Repositories
             _context.Instrumentos.Remove(instrumento);
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> ExisteAsync(int id)
+        {
+            return await _context.Instrumentos.AnyAsync(i => i.IdInstrumento == id);
+        }
+
+        public async Task<bool> CategoriaExisteAsync(int idCategoria)
+        {
+            return await _context.Categorias.AnyAsync(c => c.IdCategoria == idCategoria);
+        }
+
+        public async Task<bool> MarcaExisteAsync(int idMarca)
+        {
+            return await _context.Marcas.AnyAsync(m => m.IdMarca == idMarca);
+        }
     }
 }
