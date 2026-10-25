@@ -63,8 +63,8 @@ erDiagram
     CATEGORIA ||--o{ INSTRUMENTO : "clasifica"
     MARCA ||--o{ INSTRUMENTO : "fabrica"
     INSTRUMENTO ||--o{ RESENA : "recibe"
-    INSTRUMENTO ||--o{ DETALLE\_VENTA : "se vende en"
-    VENTA ||--o{ DETALLE\_VENTA : "contiene"
+    INSTRUMENTO ||--o{ DETALLEVENTA : "se vende en"
+    VENTA ||--o{ DETALLEVENTA : "contiene"
 ```
 
 |Tabla|Campos principales|Descripción|
