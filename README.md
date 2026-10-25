@@ -137,7 +137,7 @@ MasterMusicContext (EF Core) ──► SQL Server
 Las credenciales **no están en el repositorio**: se leen desde variables de entorno. En PowerShell, ejecuta lo siguiente con tus propios valores:
 
 ```powershell
-setx ConnectionStrings\_\_MasterMusic "Server=.\\SQLEXPRESS;Database=MasterMusicDB;Trusted\_Connection=True;TrustServerCertificate=True;"
+setx ConnectionStrings\_\_MasterMusic "Server=NOMBRE_DEL_SERVIDOR;Database=MasterMusicDB;Trusted_Connection=True;TrustServerCertificate=True;"
 setx Jwt\_\_Key "una-llave-larga-y-aleatoria-de-al-menos-32-caracteres"
 setx Admin\_\_Email "correo-del-administrador@ejemplo.cl"
 setx Admin\_\_Password "clave-del-administrador"
