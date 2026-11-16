@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="MasterMusic.Api/MasterMusic.Api.csproj" />
   <Project Path="MasterMusic.Tests/MasterMusic.Tests.csproj" Id="093261e8-1e5e-4ec8-9b71-4fbe93970bc8" />
+  <Project Path="MasterMusic.Ventas.Api/MasterMusic.Ventas.Api.csproj" />
 </Solution>
