@@ -36,11 +36,11 @@ namespace MasterMusic.Api.Controllers
   
             string claveHash = BCrypt.Net.BCrypt.HashPassword(dto.Clave);
 
-           
-            var rolDefecto = await _context.Roles.FirstOrDefaultAsync(r => r.Nombre == "Cliente")
-                             ?? await _context.Roles.FirstOrDefaultAsync();
 
-            
+            var rolDefecto = await _context.Roles
+           .FirstOrDefaultAsync(r => r.Nombre == "Cliente");
+
+
             if (rolDefecto == null)
             {
                 rolDefecto = new Rol { Nombre = "Cliente" };
@@ -70,11 +70,13 @@ namespace MasterMusic.Api.Controllers
             var usuario = await _context.Usuarios
                 .Include(u => u.Rol)
                 .FirstOrDefaultAsync(u => u.Email == dto.Correo);
-
-            if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Clave, usuario.Password))
+            if (usuario == null ||
+    !usuario.Activo ||
+    !BCrypt.Net.BCrypt.Verify(dto.Clave, usuario.Password))
             {
                 return Unauthorized(new { mensaje = "Credenciales incorrectas." });
             }
+
 
             string token = GenerarTokenJwt(usuario);
 

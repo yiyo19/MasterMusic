@@ -1,0 +1,50 @@
+name: Pruebas MasterMusic
+
+on:
+  push:
+    branches:
+      - fix/validaciones-autenticacion
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar dependencias
+        run: dotnet restore MasterMusic.slnx
+
+      - name: Compilar
+        run: dotnet build MasterMusic.slnx --configuration Release --no-restore
+
+      - name: Ejecutar pruebas
+        run: >
+          dotnet test MasterMusic.Tests/MasterMusic.Tests.csproj
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=pruebas.trx"
+          --results-directory TestResults
+
+      - name: Guardar reporte de pruebas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-pruebas
+          path: TestResults/*.trx
+          if-no-files-found: warn
