@@ -1,0 +1,2863 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MasterMusic.Api — identidad, catálogo e inventario",
+    "version": "1.0.0",
+    "description": "Amplía la API del Trabajo 2 conservando sus rutas base de autenticación e instrumentos. Contrato objetivo del Trabajo 3: no certifica implementación. Importes enteros en pesos chilenos. Sin pagos en línea."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Origen HTTPS de esta API; configurar host y puerto del entorno."
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1.0/Auth/registro": {
+      "post": {
+        "operationId": "registrarCliente",
+        "summary": "Registrar cliente",
+        "description": "Asigna exclusivamente Cliente. Correo obligatorio, válido y único; índice único debe respaldarlo. No acepta un rol enviado por el consumidor. 409 CORREO_DUPLICADO es el comportamiento objetivo (el código previo respondía 400). No agrega una política de complejidad de contraseña no acordada.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [],
+        "x-requisitos": [
+          "RF-01"
+        ],
+        "responses": {
+          "200": {
+            "description": "Cliente registrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mensaje"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Registro"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Auth/login": {
+      "post": {
+        "operationId": "iniciarSesion",
+        "summary": "Iniciar sesión",
+        "description": "Rechaza usuario inexistente, inactivo o clave incorrecta con el mismo mensaje. Compara hash BCrypt; no expone password. Logout es local en React, no se promete revocación del JWT.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "x-roles": [],
+        "x-requisitos": [
+          "RF-02"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sesión emitida.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sesion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Instrumentos": {
+      "get": {
+        "operationId": "listarCatalogo",
+        "summary": "Consultar instrumentos activos",
+        "description": "",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [],
+        "x-roles": [],
+        "x-requisitos": [
+          "RF-04"
+        ],
+        "responses": {
+          "200": {
+            "description": "Incluye activos con stock cero; UI muestra agotado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Instrumento"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearInstrumento",
+        "summary": "Crear instrumento",
+        "description": "Valida categoría y marca existentes; 400 REFERENCIA_INVALIDA si no existen. Precio positivo y stock no negativo. DTO específico sin navegaciones EF.",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-07"
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado activo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instrumento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstrumentoCrear"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Instrumentos/{id}": {
+      "get": {
+        "operationId": "verInstrumento",
+        "summary": "Consultar instrumento activo",
+        "description": "Inactivo o inexistente devuelve 404.",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [],
+        "x-roles": [],
+        "x-requisitos": [
+          "RF-05"
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle público.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instrumento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "editarInstrumento",
+        "summary": "Modificar instrumento",
+        "description": "idInstrumento debe coincidir con ruta (400 si difiere). No modifica stock ni activo. Campos opcionales omitidos se guardan nulos. No altera detalles históricos.",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-08"
+        ],
+        "responses": {
+          "204": {
+            "description": "Actualizado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InstrumentoEditar"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "eliminarInstrumento",
+        "summary": "Eliminar instrumento sin uso",
+        "description": "Solo stock cero y sin detalles de movimientos, pedidos o ventas históricas. Restricciones locales y transacción impiden carreras con descuento. 409 RECURSO_EN_USO o STOCK_NO_CERO. No borrado en cascada de historial.",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-10"
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/admin/Instrumentos": {
+      "get": {
+        "operationId": "listarInstrumentosAdmin",
+        "summary": "Consultar instrumentos activos e inactivos",
+        "description": "",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-06"
+        ],
+        "responses": {
+          "200": {
+            "description": "Catálogo administrativo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Instrumento"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/admin/Instrumentos/{id}": {
+      "get": {
+        "operationId": "verInstrumentoAdmin",
+        "summary": "Consultar detalle administrativo",
+        "description": "",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-06"
+        ],
+        "responses": {
+          "200": {
+            "description": "Incluye inactivos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instrumento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/Instrumentos/{id}/estado": {
+      "patch": {
+        "operationId": "cambiarEstadoInstrumento",
+        "summary": "Activar o desactivar instrumento",
+        "description": "",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-09"
+        ],
+        "responses": {
+          "204": {
+            "description": "Estado actualizado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoInstrumento"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Instrumentos/{id}/existencias": {
+      "post": {
+        "operationId": "agregarExistencias",
+        "summary": "Registrar entrada positiva de stock",
+        "description": "Suma atómica, sin sobrescribir entradas concurrentes; comprueba desbordamiento int32. Esta operación no es idempotente: no reintentar automáticamente tras respuesta perdida; consultar stock y verificar antes de repetir.",
+        "tags": [
+          "Instrumentos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-13"
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrumento con nuevo stock.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instrumento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaStock"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Categorias": {
+      "get": {
+        "operationId": "listarCategorias",
+        "summary": "Listar Categorias",
+        "description": "",
+        "tags": [
+          "Categorias"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-11"
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Categoria"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearCategoria",
+        "summary": "Crear Categoria",
+        "description": "",
+        "tags": [
+          "Categorias"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-11"
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Categorias/{id}": {
+      "get": {
+        "operationId": "verCategoria",
+        "summary": "Consultar Categoria",
+        "description": "",
+        "tags": [
+          "Categorias"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-11"
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "editarCategoria",
+        "summary": "Editar Categoria",
+        "description": "Sustituye los campos editables; opcionales omitidos pasan a null.",
+        "tags": [
+          "Categorias"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-11"
+        ],
+        "responses": {
+          "204": {
+            "description": "Actualizado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "eliminarCategoria",
+        "summary": "Eliminar Categoria",
+        "description": "409 RECURSO_EN_USO si tiene instrumentos asociados; conservar instrumentos y datos históricos.",
+        "tags": [
+          "Categorias"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-11"
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/Marcas": {
+      "get": {
+        "operationId": "listarMarcas",
+        "summary": "Listar Marcas",
+        "description": "",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-12"
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Marca"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "crearMarca",
+        "summary": "Crear Marca",
+        "description": "",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-12"
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Marca"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Marcas/{id}": {
+      "get": {
+        "operationId": "verMarca",
+        "summary": "Consultar Marca",
+        "description": "",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-12"
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Marca"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "editarMarca",
+        "summary": "Editar Marca",
+        "description": "Sustituye los campos editables; opcionales omitidos pasan a null.",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-12"
+        ],
+        "responses": {
+          "204": {
+            "description": "Actualizado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "eliminarMarca",
+        "summary": "Eliminar Marca",
+        "description": "409 RECURSO_EN_USO si tiene instrumentos asociados; conservar instrumentos y datos históricos.",
+        "tags": [
+          "Marcas"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-12"
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/interno/Movimientos/descuentos": {
+      "post": {
+        "operationId": "descontarInventario",
+        "summary": "Aplicar descuento idempotente",
+        "description": "Solo API de pedidos. idCliente debe coincidir con JWT. En una transacción valida TODAS las líneas, precio esperado, activo y stock; descuenta y guarda movimiento y datos históricos. Nunca parcial. IdOperacion generado por API de pedidos; mismo ID y contenido devuelve mismo resultado, distinto contenido 409. Un descuento por idPedido. Instrumentos repetidos: 400. Precio cambió: 409 PRECIO_CAMBIADO con preciosActualizados; no descontar. Unicidad y control de concurrencia obligatorios.",
+        "tags": [
+          "interno"
+        ],
+        "security": [
+          {
+            "BearerAuth": [],
+            "ServiceKey": []
+          }
+        ],
+        "x-roles": [
+          "Cliente"
+        ],
+        "x-requisitos": [
+          "RF-16",
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Reintento: movimiento previamente confirmado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movimiento"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Movimiento creado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movimiento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Descuento"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/interno/Movimientos/devoluciones": {
+      "post": {
+        "operationId": "devolverInventario",
+        "summary": "Devolver descuento una sola vez",
+        "description": "Administrador para cancelación; Cliente solo compensación de su alta fallida coordinada por API de pedidos. Requiere X-Service-Key y JWT. Verifica pedido/cliente del movimiento origen; toma cantidades y datos del descuento guardado, nunca del consumidor. Una devolución por descuento origen, transacción local y protección ante desbordamiento. Misma devolución devuelve resultado existente; conflicto de datos 409. Puede devolver a instrumento inactivo.",
+        "tags": [
+          "interno"
+        ],
+        "security": [
+          {
+            "BearerAuth": [],
+            "ServiceKey": []
+          }
+        ],
+        "x-roles": [
+          "Cliente",
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-20",
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Devolución previamente confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movimiento"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Devolución confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movimiento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Devolucion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/interno/Movimientos/{idOperacion}": {
+      "get": {
+        "operationId": "consultarMovimiento",
+        "summary": "Consultar resultado persistido de inventario",
+        "description": "Cliente solo movimientos propios. Administrador autorizado para gestión. 404 no demuestra que otra solicitud concurrente no vaya a confirmar: reutilizar el mismo comando e ID, nunca crear otro.",
+        "tags": [
+          "interno"
+        ],
+        "security": [
+          {
+            "BearerAuth": [],
+            "ServiceKey": []
+          }
+        ],
+        "x-roles": [
+          "Cliente",
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Movimiento confirmado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Movimiento"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idOperacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Validar firma, emisor, audiencia y expiración."
+      },
+      "ServiceKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Service-Key",
+        "description": "Credencial exclusiva entre servidores, desde variables de entorno. Nunca incluir en React ni logs. Se exige además JWT válido en rutas internas."
+      }
+    },
+    "schemas": {
+      "Mensaje": {
+        "type": "object",
+        "properties": {
+          "mensaje": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mensaje"
+        ],
+        "additionalProperties": false
+      },
+      "Problema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri-reference",
+            "default": "about:blank"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "codigo": {
+            "type": "string",
+            "description": "Código estable de negocio; véase README.md."
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "preciosActualizados": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "idInstrumento": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                },
+                "precioActual": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "idInstrumento",
+                "precioActual"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "codigo"
+        ],
+        "additionalProperties": false
+      },
+      "Registro": {
+        "type": "object",
+        "properties": {
+          "correo": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 150
+          },
+          "clave": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "nombreCompleto": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "correo",
+          "clave",
+          "nombreCompleto"
+        ],
+        "additionalProperties": false
+      },
+      "Sesion": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT firmado. Nunca registrar en logs."
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
+          },
+          "usuario": {
+            "type": "object",
+            "properties": {
+              "idUser": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1
+              },
+              "nombre": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "rol": {
+                "type": "string",
+                "enum": [
+                  "Cliente",
+                  "Administrador"
+                ]
+              }
+            },
+            "required": [
+              "idUser",
+              "nombre",
+              "email",
+              "rol"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "token",
+          "tipo",
+          "usuario"
+        ],
+        "additionalProperties": false
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "correo": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 150
+          },
+          "clave": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "correo",
+          "clave"
+        ],
+        "additionalProperties": false
+      },
+      "Instrumento": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "precio": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "foto": {
+            "type": "string",
+            "nullable": true
+          },
+          "activo": {
+            "type": "boolean"
+          },
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "idMarca": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombreCategoria": {
+            "type": "string"
+          },
+          "nombreMarca": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "nombre",
+          "modelo",
+          "precio",
+          "stock",
+          "descripcion",
+          "foto",
+          "activo",
+          "idCategoria",
+          "idMarca",
+          "nombreCategoria",
+          "nombreMarca"
+        ],
+        "additionalProperties": false
+      },
+      "InstrumentoCrear": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "\\S"
+          },
+          "modelo": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true
+          },
+          "precio": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "foto": {
+            "type": "string",
+            "nullable": true
+          },
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "idMarca": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "nombre",
+          "precio",
+          "stock",
+          "idCategoria",
+          "idMarca"
+        ],
+        "additionalProperties": false
+      },
+      "InstrumentoEditar": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150,
+            "pattern": "\\S"
+          },
+          "modelo": {
+            "type": "string",
+            "maxLength": 100,
+            "nullable": true
+          },
+          "precio": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "foto": {
+            "type": "string",
+            "nullable": true
+          },
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "idMarca": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "nombre",
+          "precio",
+          "idCategoria",
+          "idMarca"
+        ],
+        "additionalProperties": false
+      },
+      "EstadoInstrumento": {
+        "type": "object",
+        "properties": {
+          "activo": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "activo"
+        ],
+        "additionalProperties": false
+      },
+      "EntradaStock": {
+        "type": "object",
+        "properties": {
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "cantidad"
+        ],
+        "additionalProperties": false
+      },
+      "Categoria": {
+        "type": "object",
+        "properties": {
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "idCategoria",
+          "nombre",
+          "descripcion"
+        ],
+        "additionalProperties": false
+      },
+      "CategoriaEntrada": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "\\S"
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 250,
+            "nullable": true
+          }
+        },
+        "required": [
+          "nombre"
+        ],
+        "additionalProperties": false
+      },
+      "Marca": {
+        "type": "object",
+        "properties": {
+          "idMarca": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "pais": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "idMarca",
+          "nombre",
+          "pais"
+        ],
+        "additionalProperties": false
+      },
+      "MarcaEntrada": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "pattern": "\\S"
+          },
+          "pais": {
+            "type": "string",
+            "maxLength": 60,
+            "nullable": true
+          }
+        },
+        "required": [
+          "nombre"
+        ],
+        "additionalProperties": false
+      },
+      "Movimiento": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "Descuento",
+              "Devolucion"
+            ]
+          },
+          "idOperacionOrigen": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora UTC."
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetallePedido"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "idOperacion",
+          "idPedido",
+          "idCliente",
+          "tipo",
+          "idOperacionOrigen",
+          "fecha",
+          "detalles"
+        ],
+        "additionalProperties": false
+      },
+      "DetallePedido": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombreInstrumento": {
+            "type": "string"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "precioUnitario": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "nombreInstrumento",
+          "cantidad",
+          "precioUnitario"
+        ],
+        "additionalProperties": false
+      },
+      "Descuento": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "lineas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineaSolicitud"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "idOperacion",
+          "idPedido",
+          "idCliente",
+          "lineas"
+        ],
+        "additionalProperties": false
+      },
+      "LineaSolicitud": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "precioEsperado": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "cantidad",
+          "precioEsperado"
+        ],
+        "additionalProperties": false
+      },
+      "Devolucion": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idOperacionOrigen": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idOperacion",
+          "idOperacionOrigen",
+          "idPedido",
+          "idCliente"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

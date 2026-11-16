@@ -1,0 +1,1424 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MasterMusic.Ventas.Api — pedidos",
+    "version": "1.0.0",
+    "description": "API independiente con MasterMusicVentasDB. Consume inventario mediante cliente HTTP tipado e IHttpClientFactory. Timeout de cinco segundos por llamada. Contrato objetivo del Trabajo 3: no certifica implementación. Importes enteros en pesos chilenos. Sin pagos en línea."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Origen HTTPS de esta API; configurar host y puerto del entorno."
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1.0/Pedidos": {
+      "post": {
+        "operationId": "crearPedido",
+        "summary": "Registrar pedido propio",
+        "description": "Obtiene idCliente del JWT. Persiste OperacionPedido y comando antes del HTTP. Si descuento confirmado, guarda pedido, detalles y operación completada en transacción local. Total calculado por servidor; no acepta total ni idCliente. Resultado terminal rechazado conserva error para reintentos. Selección y resumen se editan localmente en React. No hay pago. Si respuesta se pierde, consultar por clave. Nunca reutilizar una clave para una selección modificada.",
+        "tags": [
+          "Pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente"
+        ],
+        "x-requisitos": [
+          "RF-14",
+          "RF-15",
+          "RF-16",
+          "RF-17",
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Reintento de alta completada: mismo pedido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Pedido aceptado Pendiente; no acredita pago.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Operación durable en proceso o con resultado incierto; NO acredita pedido aceptado ni cancelación. Conservar clave y consultar/recuperar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Ruta a GET Operaciones/{idOperacion}.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Segundos sugeridos antes de consultar.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "UUID generado por React para este comando. Reutilizar en reintentos del mismo comando, incluso tras pérdida de respuesta. Alcance: usuario autenticado + tipo de operación + clave. Cambio de contenido: 409.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoCrear"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listarMisPedidos",
+        "summary": "Consultar pedidos del cliente",
+        "description": "",
+        "tags": [
+          "Pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente"
+        ],
+        "x-requisitos": [
+          "RF-18"
+        ],
+        "responses": {
+          "200": {
+            "description": "Solo pedidos propios, fecha descendente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pedido"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Pedidos/{idPedido}": {
+      "get": {
+        "operationId": "verMiPedido",
+        "summary": "Consultar detalle propio",
+        "description": "404 para pedido ajeno o inexistente; evita exposición de datos.",
+        "tags": [
+          "Pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente"
+        ],
+        "x-requisitos": [
+          "RF-18"
+        ],
+        "responses": {
+          "200": {
+            "description": "Pedido propio.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idPedido",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/admin/Pedidos": {
+      "get": {
+        "operationId": "listarPedidosAdmin",
+        "summary": "Consultar todos los pedidos",
+        "description": "",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-19"
+        ],
+        "responses": {
+          "200": {
+            "description": "Todos, con idCliente, estado e historial de detalles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pedido"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/admin/Pedidos/{idPedido}": {
+      "get": {
+        "operationId": "verPedidoAdmin",
+        "summary": "Consultar pedido administrativo",
+        "description": "",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-19"
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idPedido",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/admin/Pedidos/{idPedido}/confirmacion": {
+      "post": {
+        "operationId": "confirmacionPedido",
+        "summary": "Confirmar pedido pendiente",
+        "description": "Solo Pendiente → Confirmado. No descuenta stock. Exclusión mutua con cancelación/recuperación. Finalizados no admiten otra transición; nueva clave sobre finalizado 409.",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-20",
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Transición completada o reintento completado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Operación durable en proceso o con resultado incierto; NO acredita pedido aceptado ni cancelación. Conservar clave y consultar/recuperar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Ruta a GET Operaciones/{idOperacion}.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Segundos sugeridos antes de consultar.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idPedido",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "UUID generado por React para este comando. Reutilizar en reintentos del mismo comando, incluso tras pérdida de respuesta. Alcance: usuario autenticado + tipo de operación + clave. Cambio de contenido: 409.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/admin/Pedidos/{idPedido}/cancelacion": {
+      "post": {
+        "operationId": "cancelacionPedido",
+        "summary": "Cancelar pedido pendiente",
+        "description": "Solo Pendiente → Cancelado con motivo no vacío. Persiste intención, motivo y clave antes de HTTP; excluye confirmación concurrente. Devuelve stock una sola vez y marca Cancelado únicamente tras comprobar devolución. Ante timeout mantiene operación recuperable (202), no afirma cancelación. Finalizados no admiten modificación ni borrado.",
+        "tags": [
+          "admin"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-20",
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Transición completada o reintento completado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Operación durable en proceso o con resultado incierto; NO acredita pedido aceptado ni cancelación. Conservar clave y consultar/recuperar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Ruta a GET Operaciones/{idOperacion}.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Segundos sugeridos antes de consultar.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idPedido",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "description": "UUID generado por React para este comando. Reutilizar en reintentos del mismo comando, incluso tras pérdida de respuesta. Alcance: usuario autenticado + tipo de operación + clave. Cambio de contenido: 409.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cancelacion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1.0/Operaciones": {
+      "get": {
+        "operationId": "buscarOperacionPorClave",
+        "summary": "Localizar operación tras pérdida de respuesta",
+        "description": "Busca por usuario JWT + tipo + clave. Solo creador, incluso si es administrador. 404 permite reenviar el comando original con la MISMA clave; no cambiarla.",
+        "tags": [
+          "Operaciones"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente",
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operación del usuario actual.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "claveCliente",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Crear",
+                "Confirmar",
+                "Cancelar"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/Operaciones/{idOperacion}": {
+      "get": {
+        "operationId": "consultarOperacion",
+        "summary": "Consultar progreso técnico",
+        "description": "Solo creador de la operación. 404 para ajena. GET no ejecuta movimientos ni recuperación. Completada contiene pedido; Rechazada o Compensada contiene problema. No expone solicitud_json, huella ni credenciales.",
+        "tags": [
+          "Operaciones"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente",
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado actual; examinar estadoOperacion, no solo HTTP 200.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idOperacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1.0/Operaciones/{idOperacion}/recuperacion": {
+      "post": {
+        "operationId": "recuperarOperacion",
+        "summary": "Reanudar operación persistida",
+        "description": "Solo creador, con sesión vigente. Sin cuerpo ni clave nueva: idOperacion identifica comando durable. Coordina ejecución única; consulta inventario por ID original. Si existe descuento, completa pedido faltante sin repetirlo. Si no existe, reutiliza comando e ID; 404 no equivale a rechazo definitivo. Si inventario no responde, 202 con estado recuperable. Compensación requiere persistir EnCompensacion y clave de devolución antes de HTTP; marcar Compensada solo tras confirmarla. Nunca finalizar y compensar simultáneamente.",
+        "tags": [
+          "Operaciones"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "x-roles": [
+          "Cliente",
+          "Administrador"
+        ],
+        "x-requisitos": [
+          "RF-21",
+          "RF-22"
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado terminal: revisar Completada, Rechazada o Compensada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Operación durable en proceso o con resultado incierto; NO acredita pedido aceptado ni cancelación. Conservar clave y consultar/recuperar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operacion"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Ruta a GET Operaciones/{idOperacion}.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Segundos sugeridos antes de consultar.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales ausentes, inválidas o expiradas; login no aceptado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Identidad válida sin permiso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso inexistente o no visible para el usuario.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de negocio, concurrencia o clave reutilizada con contenido diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible; no interpretar como éxito.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idOperacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Validar firma, emisor, audiencia y expiración."
+      }
+    },
+    "schemas": {
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora UTC."
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "Pendiente",
+              "Confirmado",
+              "Cancelado"
+            ]
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Suma de cantidad × precioUnitario, en pesos CLP; máximo 9007199254740991 para representación exacta en React.",
+            "maximum": 9007199254740991
+          },
+          "motivoCancelacion": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetallePedido"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "idPedido",
+          "idCliente",
+          "fecha",
+          "estado",
+          "total",
+          "motivoCancelacion",
+          "detalles"
+        ],
+        "additionalProperties": false
+      },
+      "DetallePedido": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "nombreInstrumento": {
+            "type": "string"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "precioUnitario": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "nombreInstrumento",
+          "cantidad",
+          "precioUnitario"
+        ],
+        "additionalProperties": false
+      },
+      "Operacion": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claveCliente": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "Crear",
+              "Confirmar",
+              "Cancelar"
+            ]
+          },
+          "estadoOperacion": {
+            "type": "string",
+            "enum": [
+              "EnProceso",
+              "Completada",
+              "Rechazada",
+              "EnCompensacion",
+              "Compensada"
+            ]
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora UTC."
+          },
+          "fechaActualizacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora UTC."
+          },
+          "recuperable": {
+            "type": "boolean"
+          },
+          "codigoResultado": {
+            "type": "string",
+            "nullable": true
+          },
+          "pedido": {
+            "$ref": "#/components/schemas/Pedido"
+          },
+          "problema": {
+            "$ref": "#/components/schemas/Problema"
+          }
+        },
+        "required": [
+          "idOperacion",
+          "claveCliente",
+          "tipo",
+          "estadoOperacion",
+          "idPedido",
+          "fechaCreacion",
+          "fechaActualizacion",
+          "recuperable",
+          "codigoResultado"
+        ],
+        "additionalProperties": false
+      },
+      "Problema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri-reference",
+            "default": "about:blank"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 400,
+            "maximum": 599
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri-reference"
+          },
+          "codigo": {
+            "type": "string",
+            "description": "Código estable de negocio; véase README.md."
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "preciosActualizados": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "idInstrumento": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                },
+                "precioActual": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "idInstrumento",
+                "precioActual"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "codigo"
+        ],
+        "additionalProperties": false
+      },
+      "PedidoCrear": {
+        "type": "object",
+        "properties": {
+          "lineas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineaSolicitud"
+            },
+            "minItems": 1,
+            "description": "Instrumentos sin repetir. Precios enteros CLP; el servidor verifica precio vigente antes de descontar."
+          }
+        },
+        "required": [
+          "lineas"
+        ],
+        "additionalProperties": false,
+        "description": "Validar suma con aritmética comprobada antes de solicitar descuento: total máximo 9007199254740991 CLP. Exceso: 400 TOTAL_FUERA_DE_RANGO. No aceptar identificadores repetidos."
+      },
+      "LineaSolicitud": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "precioEsperado": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "idInstrumento",
+          "cantidad",
+          "precioEsperado"
+        ],
+        "additionalProperties": false
+      },
+      "Cancelacion": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "motivo"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}
