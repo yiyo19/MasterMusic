@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace MasterMusic.Tests
 {
     
-    public class MasterMusicFactory : WebApplicationFactory<Program>
+    public class MasterMusicFactory : WebApplicationFactory<MasterMusic.Api.Controllers.AuthController>
     {
         private readonly string _nombreBd = Guid.NewGuid().ToString();
 

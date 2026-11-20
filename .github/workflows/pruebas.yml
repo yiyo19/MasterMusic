@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/validaciones-autenticacion
+      - feat/api-pedidos
       - master
   pull_request:
     branches:
