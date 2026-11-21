@@ -39,8 +39,13 @@ namespace MasterMusic.Api.Repositories
 
         public async Task<bool> UpdateAsync(Instrumento instrumento)
         {
-            _context.Instrumentos.Update(instrumento);
-            return await _context.SaveChangesAsync() > 0;
+            var actual = await _context.Instrumentos.FindAsync(instrumento.IdInstrumento);
+            if (actual == null) return false;
+            var version = actual.Version;
+            _context.Entry(actual).CurrentValues.SetValues(instrumento);
+            actual.Version = version;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)

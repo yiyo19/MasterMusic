@@ -9,6 +9,13 @@ namespace MasterMusic.Api.Data
         {
         }
 
+        public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            InventarioModelo.Configurar(modelBuilder);
+        }
+
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Categoria> Categorias { get; set; }

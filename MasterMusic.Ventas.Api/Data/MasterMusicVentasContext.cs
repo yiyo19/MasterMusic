@@ -8,11 +8,13 @@ public class MasterMusicVentasContext : DbContext
     public MasterMusicVentasContext(DbContextOptions<MasterMusicVentasContext> options)
         : base(options) { }
 
+    public DbSet<OperacionPedido> Operaciones => Set<OperacionPedido>();
     public DbSet<Pedido> Pedidos => Set<Pedido>();
     public DbSet<DetallePedido> DetallesPedido => Set<DetallePedido>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        OperacionModelo.Configurar(modelBuilder);
         var pedido = modelBuilder.Entity<Pedido>();
 
         // La API genera este identificador antes de solicitar el descuento de inventario.

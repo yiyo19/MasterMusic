@@ -10,7 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(opciones =>
+{
+    opciones.InvalidModelStateResponseFactory = contexto =>
+    {
+        var problema = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(contexto.ModelState)
+        {
+            Type = "about:blank", Status = 400, Title = "Datos inválidos",
+            Detail = "Revisa los campos de la solicitud."
+        };
+        problema.Extensions["codigo"] = "VALIDACION";
+        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problema)
+        {
+            ContentTypes = { "application/problem+json" }
+        };
+    };
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -70,6 +85,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<MasterMusic.Ventas.Api.Services.CreacionPedidosService>();
+builder.Services.AddScoped<MasterMusic.Ventas.Api.Services.CambiosPedidosService>();
+builder.Services.AddHttpClient<MasterMusic.Ventas.Api.Services.InventarioClient>((servicios, cliente) =>
+{
+    var configuracion = servicios.GetRequiredService<IConfiguration>();
+    var direccion = new Uri(configuracion["Inventario:BaseUrl"] ?? "https://localhost:7052/");
+    if (direccion.Scheme != Uri.UriSchemeHttps)
+        throw new InvalidOperationException("Inventario__BaseUrl debe usar HTTPS.");
+    cliente.BaseAddress = direccion;
+    cliente.Timeout = TimeSpan.FromSeconds(5);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 
 var conexionVentas = builder.Configuration.GetConnectionString("MasterMusicVentas");
 

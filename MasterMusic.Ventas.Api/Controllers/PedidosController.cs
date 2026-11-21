@@ -12,7 +12,7 @@ namespace MasterMusic.Ventas.Api.Controllers;
 [ApiController]
 [Route("api/v1.0/Pedidos")]
 [Authorize(Roles = "Cliente")]
-public class PedidosController(
+public partial class PedidosController(
     MasterMusicVentasContext contexto,
     ILogger<PedidosController> logger) : ControllerBase
 {
@@ -38,21 +38,7 @@ public class PedidosController(
                 .Include(pedido => pedido.Detalles)
                 .ToListAsync(cancellationToken);
 
-            var respuesta = pedidos.Select(pedido => new PedidoRespuesta(
-                pedido.IdPedido,
-                pedido.IdCliente,
-                pedido.Fecha,
-                pedido.Estado.ToString(),
-                pedido.Total,
-                pedido.MotivoCancelacion,
-                pedido.Detalles.OrderBy(detalle => detalle.IdInstrumento)
-                    .Select(detalle => new DetallePedidoRespuesta(
-                        detalle.IdInstrumento,
-                        detalle.NombreInstrumento,
-                        detalle.Cantidad,
-                        detalle.PrecioUnitario))
-                    .ToList())).ToList();
-
+            var respuesta = pedidos.Select(PedidoRespuesta.Desde).ToList();
             return Ok(respuesta);
         }
         catch (Exception error) when (error is DbException or TimeoutException

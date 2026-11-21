@@ -8,6 +8,7 @@ namespace MasterMusic.Api.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [TypeFilter(typeof(MasterMusic.Api.Filters.ErroresPersistenciaFilter))]
     [ApiController]
     public class InstrumentosController : ControllerBase
     {

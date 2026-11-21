@@ -66,6 +66,81 @@ namespace MasterMusic.Ventas.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("MasterMusic.Ventas.Api.Entities.OperacionPedido", b =>
+                {
+                    b.Property<Guid>("IdOperacion")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_operacion");
+
+                    b.Property<Guid>("ClaveCliente")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("clave_cliente");
+
+                    b.Property<string>("CodigoResultado")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)")
+                        .HasColumnName("codigo_resultado");
+
+                    b.Property<string>("EstadoOperacion")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("estado_operacion");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha_actualizacion");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha_creacion");
+
+                    b.Property<string>("HuellaSolicitud")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("huella_solicitud");
+
+                    b.Property<Guid?>("IdPedido")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_pedido");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<string>("ProblemaJson")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("problema_json");
+
+                    b.Property<string>("SolicitudJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("solicitud_json");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("tipo");
+
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion")
+                        .HasColumnName("version");
+
+                    b.HasKey("IdOperacion");
+
+                    b.HasIndex("IdPedido");
+
+                    b.HasIndex("IdUsuario", "Tipo", "ClaveCliente")
+                        .IsUnique();
+
+                    b.ToTable("OperacionPedido", (string)null);
+                });
+
             modelBuilder.Entity("MasterMusic.Ventas.Api.Entities.Pedido", b =>
                 {
                     b.Property<Guid>("IdPedido")
@@ -123,6 +198,16 @@ namespace MasterMusic.Ventas.Api.Migrations
                         .HasForeignKey("IdPedido")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MasterMusic.Ventas.Api.Entities.OperacionPedido", b =>
+                {
+                    b.HasOne("MasterMusic.Ventas.Api.Entities.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("IdPedido")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Pedido");
                 });
 
             modelBuilder.Entity("MasterMusic.Ventas.Api.Entities.Pedido", b =>

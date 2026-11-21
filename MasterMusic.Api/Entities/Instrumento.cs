@@ -6,6 +6,9 @@ namespace MasterMusic.Api.Entities
     [Table("Instrumento")]
     public class Instrumento
     {
+        [System.Text.Json.Serialization.JsonIgnore]
+        public byte[] Version { get; set; } = [];
+
         [Key]
         [Column("id_instrumento")]
         public int IdInstrumento { get; set; }
