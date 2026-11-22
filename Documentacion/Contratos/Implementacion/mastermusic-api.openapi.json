@@ -1,0 +1,3067 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "MasterMusic API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v{version}/Auth/registro": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "description": "Acceso público; no requiere JWT.",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistroDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario Cliente registrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroRespuesta"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CORREO_DUPLICADO: el correo ya está registrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/v{version}/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "description": "Acceso público; no requiere JWT.",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT y datos públicos del usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccesoRespuesta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "CREDENCIALES_INVALIDAS: cuenta inexistente, inactiva o clave incorrecta. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      }
+    },
+    "/api/v{version}/Categorias": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado de recursos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Categoria"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Categorias"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recurso creado.",
+            "headers": {
+              "Location": {
+                "description": "Ruta del recurso creado.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Categorias/{id}": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recurso encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Categorias"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Categorias"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "RECURSO_EN_USO: existen instrumentos asociados. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Instrumentos": {
+      "get": {
+        "tags": [
+          "Instrumentos"
+        ],
+        "description": "Acceso público; no requiere JWT.",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrumentos activos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstrumentoRespuesta"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      },
+      "post": {
+        "tags": [
+          "Instrumentos"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Instrumento creado.",
+            "headers": {
+              "Location": {
+                "description": "Ruta del recurso creado.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentoRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensajeCatalogo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Instrumentos/{id}": {
+      "get": {
+        "tags": [
+          "Instrumentos"
+        ],
+        "description": "Acceso público; no requiere JWT.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrumento activo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentoRespuesta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Instrumento no encontrado. Formato heredado: message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensajeCatalogo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [ ]
+      },
+      "put": {
+        "tags": [
+          "Instrumentos"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Instrumento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Instrumento no encontrado. Formato heredado: message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensajeCatalogo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensajeCatalogo"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Instrumentos"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Instrumento no encontrado. Formato heredado: message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensajeCatalogo"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STOCK_NO_CERO o RECURSO_EN_USO: se conserva el instrumento. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/admin/Instrumentos": {
+      "get": {
+        "tags": [
+          "InstrumentosAdmin"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrumentos activos e inactivos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstrumentoRespuesta"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/admin/Instrumentos/{id}": {
+      "get": {
+        "tags": [
+          "InstrumentosAdmin"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instrumento consultado o existencias actualizadas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentoRespuesta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Instrumento no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Instrumentos/{id}/estado": {
+      "patch": {
+        "tags": [
+          "InstrumentosAdmin"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoInstrumentoEntrada"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoInstrumentoEntrada"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoInstrumentoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Estado actualizado; sin cuerpo."
+          },
+          "404": {
+            "description": "Instrumento no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Instrumentos/{id}/existencias": {
+      "post": {
+        "tags": [
+          "InstrumentosAdmin"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaStock"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaStock"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaStock"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Instrumento consultado o existencias actualizadas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstrumentoRespuesta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Instrumento no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STOCK_FUERA_DE_RANGO: se supera el máximo permitido. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Marcas": {
+      "get": {
+        "tags": [
+          "Marcas"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado de recursos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Marca"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Marcas"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Recurso creado.",
+            "headers": {
+              "Location": {
+                "description": "Ruta del recurso creado.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Marca"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/Marcas/{id}": {
+      "get": {
+        "tags": [
+          "Marcas"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recurso encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Marca"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Marcas"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarcaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de persistencia o actualización concurrente. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Marcas"
+        ],
+        "description": "Requiere JWT. Roles: (Administrador).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Operación completada; sin cuerpo."
+          },
+          "404": {
+            "description": "Recurso no encontrado. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "RECURSO_EN_USO: existen instrumentos asociados. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/interno/Movimientos/{idOperacion}": {
+      "get": {
+        "tags": [
+          "Movimientos"
+        ],
+        "description": "Requiere JWT. Roles: (Cliente o Administrador). Además requiere X-Service-Key, enviada únicamente entre las APIs.",
+        "parameters": [
+          {
+            "name": "idOperacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Movimiento encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovimientoRespuesta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movimiento o instrumento no encontrado, o no accesible para la cuenta. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ],
+            "ServiceKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/interno/Movimientos/descuentos": {
+      "post": {
+        "tags": [
+          "Movimientos"
+        ],
+        "description": "Requiere JWT. Roles: (Cliente o Administrador) y (Cliente). Además requiere X-Service-Key, enviada únicamente entre las APIs.",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescuentoInventarioDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescuentoInventarioDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescuentoInventarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "La misma operación ya fue aplicada; se devuelve el resultado sin modificar stock.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovimientoRespuesta"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Movimiento aplicado y guardado de forma atómica.",
+            "headers": {
+              "Location": {
+                "description": "Ruta del recurso creado.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovimientoRespuesta"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de idempotencia, precio, stock o movimiento de origen. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movimiento o instrumento no encontrado, o no accesible para la cuenta. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ],
+            "ServiceKey": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v{version}/interno/Movimientos/devoluciones": {
+      "post": {
+        "tags": [
+          "Movimientos"
+        ],
+        "description": "Requiere JWT. Roles: (Cliente o Administrador). Además requiere X-Service-Key, enviada únicamente entre las APIs.",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "description": "Versión de la API en la URL: 1.0.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string",
+              "default": "1.0"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevolucionInventarioDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevolucionInventarioDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevolucionInventarioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "La misma operación ya fue aplicada; se devuelve el resultado sin modificar stock.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovimientoRespuesta"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Movimiento aplicado y guardado de forma atómica.",
+            "headers": {
+              "Location": {
+                "description": "Ruta del recurso creado.",
+                "schema": {
+                  "type": "string",
+                  "format": "uri-reference"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MovimientoRespuesta"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de idempotencia, precio, stock o movimiento de origen. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movimiento o instrumento no encontrado, o no accesible para la cuenta. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDACION: campos o parámetros inválidos.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "NO_AUTENTICADO: credenciales ausentes, vencidas o inválidas. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "PROHIBIDO: el rol o la identidad no permite la operación. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICIO_NO_DISPONIBLE: fallo de persistencia o integración sin configurar. El campo codigo identifica el error de negocio.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ],
+            "ServiceKey": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccesoRespuesta": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioPublico"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Categoria": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "descripcion": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CategoriaEntrada": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "descripcion": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DescuentoInventarioDto": {
+        "required": [
+          "lineas"
+        ],
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "lineas": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineaInventarioDto"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "DetalleMovimientoRespuesta": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombreInstrumento": {
+            "type": "string",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "precioUnitario": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DevolucionInventarioDto": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idOperacionOrigen": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EntradaStock": {
+        "type": "object",
+        "properties": {
+          "cantidad": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EstadoInstrumentoEntrada": {
+        "required": [
+          "activo"
+        ],
+        "type": "object",
+        "properties": {
+          "activo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Instrumento": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "maxLength": 150,
+            "minLength": 1,
+            "type": "string"
+          },
+          "modelo": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "precio": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "stock": {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "foto": {
+            "type": "string",
+            "nullable": true
+          },
+          "activo": {
+            "type": "boolean"
+          },
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idMarca": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoria": {
+            "$ref": "#/components/schemas/Categoria"
+          },
+          "marca": {
+            "$ref": "#/components/schemas/Marca"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InstrumentoRespuesta": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelo": {
+            "type": "string",
+            "nullable": true
+          },
+          "precio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "foto": {
+            "type": "string",
+            "nullable": true
+          },
+          "activo": {
+            "type": "boolean"
+          },
+          "idCategoria": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "idMarca": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombreCategoria": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreMarca": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LineaInventarioDto": {
+        "type": "object",
+        "properties": {
+          "idInstrumento": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "cantidad": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "precioEsperado": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginDto": {
+        "required": [
+          "clave",
+          "correo"
+        ],
+        "type": "object",
+        "properties": {
+          "correo": {
+            "maxLength": 150,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "clave": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Marca": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "idMarca": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pais": {
+            "maxLength": 60,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MarcaEntrada": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pais": {
+            "maxLength": 60,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MensajeCatalogo": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MovimientoRespuesta": {
+        "type": "object",
+        "properties": {
+          "idOperacion": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idPedido": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idCliente": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "idOperacionOrigen": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetalleMovimientoRespuesta"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "RegistroDto": {
+        "required": [
+          "clave",
+          "correo",
+          "nombreCompleto"
+        ],
+        "type": "object",
+        "properties": {
+          "correo": {
+            "maxLength": 150,
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "clave": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "nombreCompleto": {
+            "maxLength": 150,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegistroRespuesta": {
+        "type": "object",
+        "properties": {
+          "mensaje": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UsuarioPublico": {
+        "type": "object",
+        "properties": {
+          "idUser": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "rol": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Ingresa únicamente tu token JWT devuelto por el Login.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "ServiceKey": {
+        "type": "apiKey",
+        "description": "Clave interna de integración. Se requiere junto con el JWT solamente en /interno/Movimientos.",
+        "name": "X-Service-Key",
+        "in": "header"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Categorias"
+    },
+    {
+      "name": "Instrumentos"
+    },
+    {
+      "name": "InstrumentosAdmin"
+    },
+    {
+      "name": "Marcas"
+    },
+    {
+      "name": "Movimientos"
+    }
+  ]
+}

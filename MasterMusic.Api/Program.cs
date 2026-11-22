@@ -12,15 +12,30 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(opciones =>
+{
+    opciones.InvalidModelStateResponseFactory = contexto =>
+    {
+        var problema = new Microsoft.AspNetCore.Mvc.ValidationProblemDetails(contexto.ModelState)
+        {
+            Type = "about:blank", Status = 400, Title = "Datos inválidos",
+            Detail = "Revisa los campos de la solicitud."
+        };
+        problema.Extensions["codigo"] = "VALIDACION";
+        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(problema)
+        {
+            ContentTypes = { "application/problem+json" }
+        };
+    };
+});
 
 // 1. Configurar Versionamiento de API
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
     options.ReportApiVersions = true;
-});
+}).AddMvc();
 
 // 2. Configurar Swagger con soporte JWT (.NET 10)
 builder.Services.AddSwaggerGen(options =>
@@ -42,16 +57,18 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Ingresa únicamente tu token JWT devuelto por el Login."
     });
 
-    // Requerimiento global de seguridad compatible con .NET 10
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    options.AddSecurityDefinition("ServiceKey", new OpenApiSecurityScheme
     {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        Name = "X-Service-Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Clave interna de integración. Se requiere junto con el JWT solamente en /interno/Movimientos."
     });
+    options.DocumentFilter<MasterMusic.Api.OpenApi.ContratoCatalogoFilter>();
 });
 
 
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("Falta la variable de entorno Jwt__Key.");
+
 
 
 // 3. Configurar Autenticación con JWT
@@ -62,6 +79,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var jwtKey = builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("Falta la variable de entorno Jwt__Key.");
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -72,9 +91,26 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = contexto =>
+        {
+            contexto.HandleResponse();
+            contexto.Response.Headers.WWWAuthenticate = "Bearer";
+            return Results.Problem(statusCode: 401, type: "about:blank",
+                title: "Autenticación requerida", detail: "Debes iniciar sesión con una cuenta válida.",
+                extensions: new Dictionary<string, object?> { ["codigo"] = "NO_AUTENTICADO" })
+                .ExecuteAsync(contexto.HttpContext);
+        },
+        OnForbidden = contexto => Results.Problem(statusCode: 403, type: "about:blank",
+            title: "Acceso denegado", detail: "Tu cuenta no tiene permiso para esta operación.",
+            extensions: new Dictionary<string, object?> { ["codigo"] = "PROHIBIDO" })
+            .ExecuteAsync(contexto.HttpContext)
+    };
 });
 
 builder.Services.AddOpenApi();
+builder.Services.AddScoped<MasterMusic.Api.Filters.ClaveServicioFilter>();
 
 // Configuración de la conexión a SQL Server
 builder.Services.AddDbContext<MasterMusicContext>(options =>
@@ -82,7 +118,15 @@ builder.Services.AddDbContext<MasterMusicContext>(options =>
 
 builder.Services.AddScoped<IInstrumentoRepository, InstrumentoRepository>();
 
+var origenesCliente = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? (builder.Environment.IsDevelopment() ? new[] { "http://localhost:5173" } : Array.Empty<string>());
+builder.Services.AddCors(opciones => opciones.AddPolicy("ClienteReact", politica =>
+    politica.WithOrigins(origenesCliente).AllowAnyHeader().AllowAnyMethod()
+        .WithExposedHeaders("Location", "Retry-After")));
+
 var app = builder.Build();
+if (string.IsNullOrWhiteSpace(app.Configuration["Jwt:Key"]))
+    throw new InvalidOperationException("Falta la variable de entorno Jwt__Key.");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MasterMusicContext>();
@@ -98,6 +142,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseCors("ClienteReact");
 
 app.UseAuthentication();
 app.UseAuthorization();

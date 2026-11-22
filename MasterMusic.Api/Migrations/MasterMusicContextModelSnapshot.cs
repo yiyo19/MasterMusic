@@ -47,6 +47,52 @@ namespace MasterMusic.Api.Migrations
                     b.ToTable("Categoria");
                 });
 
+            modelBuilder.Entity("MasterMusic.Api.Entities.DetalleMovimientoInventario", b =>
+                {
+                    b.Property<int>("IdDetalleMovimiento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_detalle_movimiento");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDetalleMovimiento"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("int")
+                        .HasColumnName("cantidad");
+
+                    b.Property<int>("IdInstrumento")
+                        .HasColumnType("int")
+                        .HasColumnName("id_instrumento");
+
+                    b.Property<Guid>("IdOperacion")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_operacion");
+
+                    b.Property<string>("NombreInstrumento")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("nombre_instrumento");
+
+                    b.Property<int>("PrecioUnitario")
+                        .HasColumnType("int")
+                        .HasColumnName("precio_unitario");
+
+                    b.HasKey("IdDetalleMovimiento");
+
+                    b.HasIndex("IdInstrumento");
+
+                    b.HasIndex("IdOperacion", "IdInstrumento")
+                        .IsUnique();
+
+                    b.ToTable("DetalleMovimientoInventario", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Movimiento_Cantidad", "[cantidad] > 0");
+
+                            t.HasCheckConstraint("CK_Movimiento_Precio", "[precio_unitario] > 0");
+                        });
+                });
+
             modelBuilder.Entity("MasterMusic.Api.Entities.DetalleVenta", b =>
                 {
                     b.Property<int>("IdDetalle")
@@ -129,13 +175,23 @@ namespace MasterMusic.Api.Migrations
                         .HasColumnType("int")
                         .HasColumnName("stock");
 
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion")
+                        .HasColumnName("version");
+
                     b.HasKey("IdInstrumento");
 
                     b.HasIndex("IdCategoria");
 
                     b.HasIndex("IdMarca");
 
-                    b.ToTable("Instrumento");
+                    b.ToTable("Instrumento", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Instrumento_Stock", "[stock] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("MasterMusic.Api.Entities.Marca", b =>
@@ -161,6 +217,53 @@ namespace MasterMusic.Api.Migrations
                     b.HasKey("IdMarca");
 
                     b.ToTable("Marca");
+                });
+
+            modelBuilder.Entity("MasterMusic.Api.Entities.MovimientoInventario", b =>
+                {
+                    b.Property<Guid>("IdOperacion")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_operacion");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fecha");
+
+                    b.Property<string>("HuellaSolicitud")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("huella_solicitud");
+
+                    b.Property<int>("IdCliente")
+                        .HasColumnType("int")
+                        .HasColumnName("id_cliente");
+
+                    b.Property<Guid?>("IdOperacionOrigen")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_operacion_origen");
+
+                    b.Property<Guid>("IdPedido")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id_pedido");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("tipo");
+
+                    b.HasKey("IdOperacion");
+
+                    b.HasIndex("IdOperacionOrigen")
+                        .IsUnique()
+                        .HasFilter("[id_operacion_origen] IS NOT NULL");
+
+                    b.HasIndex("IdPedido")
+                        .IsUnique()
+                        .HasFilter("[tipo] = N'Descuento'");
+
+                    b.ToTable("MovimientoInventario", (string)null);
                 });
 
             modelBuilder.Entity("MasterMusic.Api.Entities.Resena", b =>
@@ -263,6 +366,9 @@ namespace MasterMusic.Api.Migrations
 
                     b.HasKey("IdUser");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("IdRol");
 
                     b.ToTable("Usuario");
@@ -318,6 +424,21 @@ namespace MasterMusic.Api.Migrations
                     b.ToTable("Venta");
                 });
 
+            modelBuilder.Entity("MasterMusic.Api.Entities.DetalleMovimientoInventario", b =>
+                {
+                    b.HasOne("MasterMusic.Api.Entities.Instrumento", null)
+                        .WithMany()
+                        .HasForeignKey("IdInstrumento")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MasterMusic.Api.Entities.MovimientoInventario", null)
+                        .WithMany("Detalles")
+                        .HasForeignKey("IdOperacion")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MasterMusic.Api.Entities.DetalleVenta", b =>
                 {
                     b.HasOne("MasterMusic.Api.Entities.Instrumento", "Instrumento")
@@ -354,6 +475,14 @@ namespace MasterMusic.Api.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Marca");
+                });
+
+            modelBuilder.Entity("MasterMusic.Api.Entities.MovimientoInventario", b =>
+                {
+                    b.HasOne("MasterMusic.Api.Entities.MovimientoInventario", null)
+                        .WithMany()
+                        .HasForeignKey("IdOperacionOrigen")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("MasterMusic.Api.Entities.Resena", b =>
@@ -401,6 +530,11 @@ namespace MasterMusic.Api.Migrations
                     b.Navigation("Cliente");
 
                     b.Navigation("Vendedor");
+                });
+
+            modelBuilder.Entity("MasterMusic.Api.Entities.MovimientoInventario", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor C as Cliente
+    participant R as React
+    participant P as API pedidos
+    participant V as VentasDB
+    participant A as API catálogo
+    participant D as CatálogoDB
+    Note over R,V: La clave y el comando original ya están persistidos
+    P->>A: POST descuento · IdOperacion original
+    A->>D: Descontar y guardar movimiento en transacción
+    D-->>A: Commit
+    A--xP: Respuesta perdida o timeout
+    P->>V: Mantener EnProceso y actualizar fecha, commit
+    P-->>R: 202 · OperacionRespuesta, Location y Retry-After
+    R-->>C: Informar resultado incierto y conservar solicitud
+    C->>R: Recuperar operación
+    R->>P: POST Operaciones/{idOperacion}/recuperacion + JWT
+    P->>P: Validar identidad, propietario y rol
+    P->>V: Abrir transacción y bloquear operación
+    P->>A: GET interno/Movimientos/{idOperacion}
+    alt Movimiento confirmado y válido
+        A->>D: Leer detalles históricos
+        D-->>A: Movimiento
+        A-->>P: 200 · Movimiento
+        P->>V: Guardar pedido si falta, completar operación y commit
+        P-->>R: 200 · Operación Completada con Pedido
+        R-->>C: Mostrar el único pedido Pendiente
+    else Inventario no responde
+        A--xP: Timeout o conexión no disponible
+        P->>V: Conservar EnProceso y commit
+        P-->>R: 202 · Operación aún recuperable
+        R-->>C: Permitir otra consulta con la misma operación
+    end

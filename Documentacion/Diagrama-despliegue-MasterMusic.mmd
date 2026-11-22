@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph PC["Equipo Windows — entorno local Development"]
+        subgraph NAVEGADOR["Navegador"]
+            CLIENTE["Cliente React 19<br/>Catálogo, pedidos e inventario"]
+        end
+        subgraph NODE["Proceso Node.js / Vite"]
+            VITE["Archivos del cliente<br/>HTTP localhost:5173"]
+        end
+        subgraph NET1["Proceso ASP.NET Core / Kestrel"]
+            API1["MasterMusic.Api<br/>HTTPS localhost:7052<br/>Catálogo, usuarios e inventario"]
+        end
+        subgraph NET2["Proceso ASP.NET Core / Kestrel independiente"]
+            API2["MasterMusic.Ventas.Api<br/>HTTPS localhost:7267<br/>Pedidos y operaciones"]
+        end
+        subgraph SQL["Servicio SQL Server Express — instancia SQLEXPRESS"]
+            DB1[("MasterMusicDB")]
+            DB2[("MasterMusicVentasDB")]
+        end
+    end
+    VITE -->|"HTTP 5173 · HTML, CSS y JavaScript"| CLIENTE
+    CLIENTE -->|"HTTPS 7052 · JSON · JWT cuando corresponda"| API1
+    CLIENTE -->|"HTTPS 7267 · JSON y JWT"| API2
+    API2 -->|"HTTPS 7052 · cliente HTTP tipado · 5 s · JWT + X-Service-Key"| API1
+    API1 -->|"EF Core / SqlClient · autenticación Windows"| DB1
+    API2 -->|"EF Core / SqlClient · autenticación Windows"| DB2
+    classDef cliente fill:#e8f3f2,stroke:#147a78,color:#15313b;
+    classDef servicio fill:#eff5fb,stroke:#376b8f,color:#15313b;
+    classDef datos fill:#fff4e9,stroke:#b76826,color:#15313b;
+    class CLIENTE,VITE cliente;
+    class API1,API2 servicio;
+    class DB1,DB2 datos;

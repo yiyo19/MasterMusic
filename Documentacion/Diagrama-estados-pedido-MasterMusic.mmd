@@ -1,0 +1,22 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Pendiente: Crear (Cliente) / descuento verificado
+    Pendiente --> Confirmado: Confirmar (Administrador)
+    Pendiente --> Cancelado: Cancelar (Administrador) / devolución verificada
+    Confirmado --> [*]
+    Cancelado --> [*]
+
+    note right of Pendiente
+        El stock se descontó al crear el pedido.
+        Una cancelación incierta mantiene este estado
+        hasta verificar la devolución.
+    end note
+    note right of Confirmado
+        No se descuenta stock otra vez.
+        Se conserva el pedido para consulta.
+    end note
+    note right of Cancelado
+        Motivo obligatorio.
+        Devolución de las unidades una sola vez.
+        Se conserva el pedido para consulta.
+    end note

@@ -1,0 +1,30 @@
+sequenceDiagram
+    actor C as Cliente
+    participant R as React
+    participant P as API pedidos
+    participant V as VentasDB
+    participant A as API catálogo
+    participant D as CatálogoDB
+    C->>R: Enviar resumen revisado
+    R->>R: Guardar clave y solicitud, bloquear doble envío
+    R->>P: POST Pedidos · JWT + Idempotency-Key
+    P->>P: Validar rol, datos y huella
+    P->>V: Registrar OperacionPedido EnProceso
+    Note over P,V: Guardar comando e ID de pedido previsto, luego commit
+    P->>V: Abrir transacción de recuperación y bloquear operación
+    P->>A: GET interno/Movimientos/{idOperacion}
+    Note over P,A: HTTPS · JWT + X-Service-Key · timeout 5 s
+    A->>D: Consultar movimiento
+    A-->>P: 404 · Primera solicitud
+    P->>A: POST interno/Movimientos/descuentos
+    A->>A: Validar credenciales internas y datos
+    A->>D: Transacción, bloqueos, validar precio y stock
+    A->>D: Descontar, guardar movimiento y detalles, commit
+    A-->>P: 201 · Movimiento y valores históricos
+    P->>P: Verificar correspondencia y construir Pedido
+    P->>V: Guardar Pedido Pendiente y detalles
+    P->>V: Marcar operación Completada y commit
+    P-->>R: 201 · Pedido y Location
+    R->>R: Borrar solicitud pendiente y selección enviada
+    R-->>C: Mostrar pedido Pendiente
+    Note over P,R: Reintento completado: 200 con el mismo pedido

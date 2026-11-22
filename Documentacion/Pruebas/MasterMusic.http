@@ -1,0 +1,231 @@
+# Colección manual de MasterMusic. Ejecutar una solicitud por vez.
+# Trabajar en MasterMusic.local.http, que se ignora en Git.
+# Completar credenciales SOLO en esa copia y no guardar respuestas con JWT.
+# Generar 5 UUID nuevos en PowerShell: 1..5 | ForEach-Object { [guid]::NewGuid().ToString() }
+# Mantener la misma clave al repetir una solicitud; una acción nueva usa otra clave.
+
+@CatalogoUrl = https://localhost:7052
+@PedidosUrl = https://localhost:7267
+@CorreoCliente =
+@ClaveCliente =
+@CorreoAdmin =
+@ClaveAdmin =
+@TokenCliente =
+@TokenAdmin =
+@IdCategoria = 0
+@IdMarca = 0
+@IdInstrumentoCrud = 0
+@IdInstrumentoPedido = 0
+@IdPedidoCancelar =
+@IdPedidoConfirmar =
+@IdOperacion =
+@ClaveCrear1 =
+@ClaveCancelar1 =
+@ClaveCrear2 =
+@ClaveConfirmar2 =
+@ClaveCancelarFinalizado =
+
+### P01 — Registro de Cliente: 200. Repetir el mismo correo: 409 CORREO_DUPLICADO.
+POST {{CatalogoUrl}}/api/v1.0/Auth/registro
+Content-Type: application/json
+
+{"nombreCompleto":"Cliente de prueba de entrega","correo":"{{CorreoCliente}}","clave":"{{ClaveCliente}}"}
+
+### P02 — Login Cliente: 200. Copiar token a TokenCliente en la copia local.
+POST {{CatalogoUrl}}/api/v1.0/Auth/login
+Content-Type: application/json
+
+{"correo":"{{CorreoCliente}}","clave":"{{ClaveCliente}}"}
+
+### P03 — Login Administrador existente: 200. Copiar token a TokenAdmin.
+POST {{CatalogoUrl}}/api/v1.0/Auth/login
+Content-Type: application/json
+
+{"correo":"{{CorreoAdmin}}","clave":"{{ClaveAdmin}}"}
+
+### P04 — Catálogo público: 200, solo instrumentos activos.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos
+
+### P05 — Pedidos sin token: 401 NO_AUTENTICADO.
+GET {{PedidosUrl}}/api/v1.0/Pedidos
+
+### P06 — Cliente en administración: 403 PROHIBIDO.
+GET {{PedidosUrl}}/api/v1.0/admin/Pedidos
+Authorization: Bearer {{TokenCliente}}
+
+### P07 — Crear categoría: 201. Copiar idCategoria.
+POST {{CatalogoUrl}}/api/v1.0/Categorias
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Prueba entrega","descripcion":"Categoría creada por la colección de pruebas"}
+
+### P08 — Consultar categoría: 200.
+GET {{CatalogoUrl}}/api/v1.0/Categorias/{{IdCategoria}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P09 — Actualizar categoría: 204.
+PUT {{CatalogoUrl}}/api/v1.0/Categorias/{{IdCategoria}}
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Prueba entrega editada","descripcion":"Actualización de comprobación"}
+
+### P10 — Crear marca: 201. Copiar idMarca.
+POST {{CatalogoUrl}}/api/v1.0/Marcas
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Marca de prueba entrega","pais":"Chile"}
+
+### P11 — Actualizar marca: 204.
+PUT {{CatalogoUrl}}/api/v1.0/Marcas/{{IdMarca}}
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Marca de prueba editada","pais":"Chile"}
+
+### P12 — Consultar marca: 200.
+GET {{CatalogoUrl}}/api/v1.0/Marcas/{{IdMarca}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P13 — Crear instrumento SOLO para CRUD con stock cero: 201. Copiar idInstrumento a IdInstrumentoCrud.
+POST {{CatalogoUrl}}/api/v1.0/Instrumentos
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Instrumento prueba CRUD","modelo":"Entrega","precio":1000,"stock":0,"descripcion":"Sin pedidos asociados","idCategoria":{{IdCategoria}},"idMarca":{{IdMarca}}}
+
+### P14 — Actualizar instrumento CRUD: 204.
+PUT {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoCrud}}
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"idInstrumento":{{IdInstrumentoCrud}},"nombre":"Instrumento prueba CRUD editado","modelo":"Entrega","precio":1200,"stock":0,"idCategoria":{{IdCategoria}},"idMarca":{{IdMarca}}}
+
+### P15 — Consultar actualización: 200, precio 1200 y stock cero.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoCrud}}
+
+### P16 — Eliminar instrumento sin stock ni historial: 204.
+DELETE {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoCrud}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P17 — Consultar instrumento eliminado: 404.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoCrud}}
+
+### P18 — Eliminar categoría sin referencias: 204.
+DELETE {{CatalogoUrl}}/api/v1.0/Categorias/{{IdCategoria}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P19 — Eliminar marca sin referencias: 204.
+DELETE {{CatalogoUrl}}/api/v1.0/Marcas/{{IdMarca}}
+Authorization: Bearer {{TokenAdmin}}
+
+# Antes de P20, repetir P07 y P10 y actualizar IdCategoria e IdMarca.
+# Así se comprueban los CRUD completos y se crean referencias nuevas para los pedidos.
+
+### P20 — Crear instrumento de pedidos con stock 5: 201. Copiar idInstrumento a IdInstrumentoPedido.
+POST {{CatalogoUrl}}/api/v1.0/Instrumentos
+Authorization: Bearer {{TokenAdmin}}
+Content-Type: application/json
+
+{"nombre":"Instrumento prueba pedidos","modelo":"Entrega","precio":1000,"stock":5,"descripcion":"Flujo de pedidos de la colección","idCategoria":{{IdCategoria}},"idMarca":{{IdMarca}}}
+
+### P21 — No borrar existencias: 409 STOCK_NO_CERO, conservar stock 5.
+DELETE {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoPedido}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P22 — No borrar categoría en uso: 409 RECURSO_EN_USO.
+DELETE {{CatalogoUrl}}/api/v1.0/Categorias/{{IdCategoria}}
+Authorization: Bearer {{TokenAdmin}}
+
+### P23 — Cantidad cero: 400. No debe crear pedido ni descontar stock.
+POST {{PedidosUrl}}/api/v1.0/Pedidos
+Authorization: Bearer {{TokenCliente}}
+Idempotency-Key: {{ClaveCrear1}}
+Content-Type: application/json
+
+{"lineas":[{"idInstrumento":{{IdInstrumentoPedido}},"cantidad":0,"precioEsperado":1000}]}
+
+### P24 — Crear pedido de 2 unidades: 201, Pendiente, total 2000. Copiar idPedido a IdPedidoCancelar.
+# Repetir exactamente esta solicitud: 200 y el MISMO idPedido; stock continúa en 3.
+POST {{PedidosUrl}}/api/v1.0/Pedidos
+Authorization: Bearer {{TokenCliente}}
+Idempotency-Key: {{ClaveCrear1}}
+Content-Type: application/json
+
+{"lineas":[{"idInstrumento":{{IdInstrumentoPedido}},"cantidad":2,"precioEsperado":1000}]}
+
+### P25 — Comprobar stock: 200 y stock 3.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoPedido}}
+
+### P26 — Consulta propia: 200 con el pedido creado.
+GET {{PedidosUrl}}/api/v1.0/Pedidos/{{IdPedidoCancelar}}
+Authorization: Bearer {{TokenCliente}}
+
+### P27 — Cancelar: 200, Cancelado y motivo registrado. Repetir conserva resultado y no duplica devolución.
+POST {{PedidosUrl}}/api/v1.0/admin/Pedidos/{{IdPedidoCancelar}}/cancelacion
+Authorization: Bearer {{TokenAdmin}}
+Idempotency-Key: {{ClaveCancelar1}}
+Content-Type: application/json
+
+{"motivo":"Prueba de devolución de stock de la colección"}
+
+### P28 — Comprobar devolución: 200 y stock 5.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoPedido}}
+
+### P29 — Crear OTRO pedido de 1 unidad con clave nueva: 201. Copiar idPedido a IdPedidoConfirmar.
+POST {{PedidosUrl}}/api/v1.0/Pedidos
+Authorization: Bearer {{TokenCliente}}
+Idempotency-Key: {{ClaveCrear2}}
+Content-Type: application/json
+
+{"lineas":[{"idInstrumento":{{IdInstrumentoPedido}},"cantidad":1,"precioEsperado":1000}]}
+
+### P30 — Confirmar: 200 y Confirmado. No produce otro descuento.
+POST {{PedidosUrl}}/api/v1.0/admin/Pedidos/{{IdPedidoConfirmar}}/confirmacion
+Authorization: Bearer {{TokenAdmin}}
+Idempotency-Key: {{ClaveConfirmar2}}
+
+### P31 — Comprobar stock tras confirmar: 200 y stock 4.
+GET {{CatalogoUrl}}/api/v1.0/Instrumentos/{{IdInstrumentoPedido}}
+
+### P32 — No cancelar un confirmado con una acción nueva: 409 ESTADO_PEDIDO_INVALIDO.
+POST {{PedidosUrl}}/api/v1.0/admin/Pedidos/{{IdPedidoConfirmar}}/cancelacion
+Authorization: Bearer {{TokenAdmin}}
+Idempotency-Key: {{ClaveCancelarFinalizado}}
+Content-Type: application/json
+
+{"motivo":"Comprobación de estado final"}
+
+### P33 — Pedidos propios: 200.
+GET {{PedidosUrl}}/api/v1.0/Pedidos
+Authorization: Bearer {{TokenCliente}}
+
+### P34 — Administración de pedidos: 200.
+GET {{PedidosUrl}}/api/v1.0/admin/Pedidos
+Authorization: Bearer {{TokenAdmin}}
+
+### P35 — Buscar operación de alta con la misma cuenta y clave: 200. Copiar idOperacion.
+GET {{PedidosUrl}}/api/v1.0/Operaciones?claveCliente={{ClaveCrear1}}&tipo=Crear
+Authorization: Bearer {{TokenCliente}}
+
+### P36 — Consultar operación: 200. Una operación ajena o inexistente responde 404.
+GET {{PedidosUrl}}/api/v1.0/Operaciones/{{IdOperacion}}
+Authorization: Bearer {{TokenCliente}}
+
+### P37 — Recuperar con el mismo actor: 200 si ya está resuelta; 202 si sigue recuperable.
+# En el recorrido normal ya está completada y esta acción no repite el descuento.
+POST {{PedidosUrl}}/api/v1.0/Operaciones/{{IdOperacion}}/recuperacion
+Authorization: Bearer {{TokenCliente}}
+
+### P38 — OpenAPI del catálogo: 200 en Development.
+GET {{CatalogoUrl}}/swagger/v1/swagger.json
+
+### P39 — OpenAPI de pedidos: 200 en Development.
+GET {{PedidosUrl}}/openapi/v1.json
+
+# Los pedidos finales y su historial se conservan. El instrumento utilizado no se elimina.
+# Opcionalmente, desactivarlo desde Inventario después de terminar la demostración.
+# La pérdida de respuesta y las carreras reales están cubiertas por la suite SQL;
+# este recorrido manual normal no simula por sí solo un timeout.

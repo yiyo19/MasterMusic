@@ -31,3 +31,32 @@ Origen: API y Swagger del Trabajo 2, ERS, Arquitectura-MasterMusic.md, Modelo-en
 - Los contratos son diseño; la implementación de API 2, React y las ampliaciones de API 1 sigue siendo trabajo posterior. La existencia del archivo no acredita funcionalidad ni pruebas aprobadas.
 
 En cambios posteriores registrar fecha, rutas/esquemas modificados, motivo, compatibilidad y pruebas realmente ejecutadas. No anotar como realizado un despliegue o prueba sin evidencia.
+
+
+## 1.0.1 — 2026-11-22 — Ajustes de validación del cierre
+
+La versión documental registra cambios de implementación sobre las mismas rutas `/api/v1.0`.
+
+- `POST /Auth/registro` devuelve `409` con Problem Details y código `CORREO_DUPLICADO` al encontrar un correo repetido o una colisión simultánea al insertar. Se cumple así la respuesta prevista en 1.0.0, reemplazando el `400` heredado.
+- Se incorpora la migración `CorreoUsuarioUnico` y el índice único `IX_Usuario_email`. Si existen correos duplicados previos, la migración se detiene para revisarlos; no elimina ni combina cuentas.
+- `POST /Auth/login` conserva `401` ante credenciales no aceptadas y cambia su error a Problem Details con código `CREDENCIALES_INVALIDAS`.
+- `DELETE /Instrumentos/{id}` exige stock cero y ausencia de historial. Devuelve `409 STOCK_NO_CERO` cuando quedan existencias y `409 RECURSO_EN_USO` cuando hay referencias. La comprobación se realiza dentro de la transacción que bloquea el instrumento.
+
+El cliente React interpreta `detail` y `codigo` además de los campos de error heredados, por lo que estos cambios no requieren modificar sus formularios. La respuesta correcta de registro sigue siendo `200`; el login correcto conserva token y datos públicos del usuario.
+
+Las pruebas agregadas cubren rechazo y conservación de stock, eliminación válida, competencia entre eliminar y sumar stock, correo repetido, altas simultáneas, la restricción SQL y la correspondencia entre modelo y snapshot. La suite define 99 casos .NET; el resultado de ejecución se acredita mediante el TRX del commit probado.
+
+La exportación final de las APIs y su comparación integral con el diseño de 1.0.0 constituyen una comprobación distinta de estos ajustes. Algunos errores heredados de instrumentos todavía utilizan `message`. La implementación recupera altas inciertas, pero no ejecuta la compensación automática propuesta inicialmente.
+
+
+## 1.0.2 — 2026-11-22 — Documentación de la implementación en Swagger
+
+Se completan metadatos; no se alteran rutas, reglas de negocio, bases de datos ni migraciones.
+
+- La API de catálogo deja de declarar Bearer como requisito global. Registro, login y lectura pública se documentan sin JWT; administración exige Bearer e inventario interno exige Bearer y X-Service-Key en el mismo requisito.
+- Se describen los esquemas de respuestas correctas, los errores y los estados 201/204 del catálogo, y 200/201/202 de pedidos, con Location y Retry-After cuando corresponde.
+- El parámetro de versión del catálogo muestra 1.0. Se mantienen las URL existentes.
+- Se registran las diferencias de entrada de instrumentos, errores heredados, código de transición inválida y compensación automática en [Comparacion-diseno-implementacion.md](Comparacion-diseno-implementacion.md).
+- Se agregan cuatro comprobaciones de contratos: la suite pasa de 99 a 103 casos definidos; la selección Swagger contiene 11. La compilación y los resultados ejecutados se acreditan por separado.
+
+Las exportaciones de Implementacion deben regenerarse desde ambas APIs reiniciadas con este código. Los JSON originales de diseño permanecen conservados.

@@ -14,6 +14,7 @@ namespace MasterMusic.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [TypeFilter(typeof(MasterMusic.Api.Filters.ErroresPersistenciaFilter))]
     public class AuthController : ControllerBase
     {
         private readonly MasterMusicContext _context;
@@ -30,7 +31,7 @@ namespace MasterMusic.Api.Controllers
         {
             if (await _context.Usuarios.AnyAsync(u => u.Email == dto.Correo))
             {
-                return BadRequest(new { mensaje = "El correo electrónico ya se encuentra registrado." });
+                return CorreoDuplicado();
             }
 
   
@@ -59,7 +60,16 @@ namespace MasterMusic.Api.Controllers
             };
 
             _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException error) when (
+                error.InnerException is Microsoft.Data.SqlClient.SqlException { Number: 2601 or 2627 })
+            {
+                // Otra solicitud pudo insertar el correo después de la consulta inicial.
+                return CorreoDuplicado();
+            }
 
             return Ok(new { mensaje = "Usuario registrado exitosamente." });
         }
@@ -74,7 +84,9 @@ namespace MasterMusic.Api.Controllers
     !usuario.Activo ||
     !BCrypt.Net.BCrypt.Verify(dto.Clave, usuario.Password))
             {
-                return Unauthorized(new { mensaje = "Credenciales incorrectas." });
+                return Problem(statusCode: 401, type: "about:blank",
+                    title: "Credenciales no válidas", detail: "El correo o la contraseña no son válidos.",
+                    extensions: new Dictionary<string, object?> { ["codigo"] = "CREDENCIALES_INVALIDAS" });
             }
 
 
@@ -93,6 +105,11 @@ namespace MasterMusic.Api.Controllers
                 }
             });
         }
+
+        private ObjectResult CorreoDuplicado() =>
+            Problem(statusCode: 409, type: "about:blank",
+                title: "Correo ya registrado", detail: "El correo electrónico ya se encuentra registrado.",
+                extensions: new Dictionary<string, object?> { ["codigo"] = "CORREO_DUPLICADO" });
 
         private string GenerarTokenJwt(Usuario usuario)
         {

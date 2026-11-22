@@ -1,0 +1,61 @@
+classDiagram
+    direction TB
+    class Rol {
+        +int IdRol
+        +string Nombre
+    }
+    class Usuario {
+        +int IdUser
+        +string Nombre
+        +string Email
+        +string Password
+        +int IdRol
+        +bool Activo
+        +DateTime FechaRegistro
+    }
+    class Categoria {
+        +int IdCategoria
+        +string Nombre
+        +string Descripcion
+    }
+    class Marca {
+        +int IdMarca
+        +string Nombre
+        +string Pais
+    }
+    class Instrumento {
+        +int IdInstrumento
+        +string Nombre
+        +string Modelo
+        +int Precio
+        +int Stock
+        +string Descripcion
+        +string Foto
+        +bool Activo
+        +int IdCategoria
+        +int IdMarca
+        +byte[] Version
+    }
+    class MovimientoInventario {
+        +Guid IdOperacion
+        +Guid IdPedido
+        +int IdCliente
+        +string Tipo
+        +string HuellaSolicitud
+        +DateTime Fecha
+        +Guid? IdOperacionOrigen
+    }
+    class DetalleMovimientoInventario {
+        +int IdDetalleMovimiento
+        +Guid IdOperacion
+        +int IdInstrumento
+        +int Cantidad
+        +string NombreInstrumento
+        +int PrecioUnitario
+    }
+    Rol "1" -- "0..*" Usuario : asignado
+    Categoria "1" -- "0..*" Instrumento : clasifica
+    Marca "1" -- "0..*" Instrumento : identifica
+    Instrumento "1" -- "0..*" DetalleMovimientoInventario : conserva historial
+    MovimientoInventario "1" *-- "1..*" DetalleMovimientoInventario : contiene
+    MovimientoInventario "0..1" -- "0..1" MovimientoInventario : devolución de origen

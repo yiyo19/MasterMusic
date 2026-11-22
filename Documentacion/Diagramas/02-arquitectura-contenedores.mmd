@@ -1,0 +1,7 @@
+flowchart TB
+    U["Visitante · Cliente · Administrador"] -->|"Interacción"| R["Navegador · React<br/>Vite sirve los archivos por HTTP 5173"]
+    R -->|"HTTPS 7052 · JSON<br/>JWT en rutas protegidas"| A["MasterMusic.Api<br/>Identidad, catálogo e inventario"]
+    R -->|"HTTPS 7267 · JSON + JWT"| P["MasterMusic.Ventas.Api<br/>Pedidos y operaciones"]
+    P -->|"HTTPS 7052 · JSON<br/>JWT + X-Service-Key<br/>InventarioClient · timeout 5 s"| A
+    A -->|"EF Core / SqlClient"| D1[("MasterMusicDB<br/>SQL Server Express")]
+    P -->|"EF Core / SqlClient"| D2[("MasterMusicVentasDB<br/>SQL Server Express")]

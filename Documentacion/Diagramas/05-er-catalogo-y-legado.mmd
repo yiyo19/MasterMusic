@@ -1,0 +1,72 @@
+erDiagram
+    Rol ||--o{ Usuario : asigna
+    Categoria ||--o{ Instrumento : clasifica
+    Marca ||--o{ Instrumento : fabrica
+    Usuario ||--o{ Venta : compra
+    Usuario |o--o{ Venta : atiende
+    Venta ||--o{ DetalleVenta : contiene
+    Instrumento ||--o{ DetalleVenta : aparece
+    Usuario ||--o{ Resena : escribe
+    Instrumento ||--o{ Resena : recibe
+
+    Rol {
+        int id_rol PK
+        string nombre
+    }
+    Usuario {
+        int id_user PK
+        string nombre
+        string email UK
+        string password "Hash BCrypt"
+        int id_rol FK
+        boolean activo
+        datetime fecha_registro
+    }
+    Categoria {
+        int id_categoria PK
+        string nombre
+        string descripcion "Opcional"
+    }
+    Marca {
+        int id_marca PK
+        string nombre
+        string pais "Opcional"
+    }
+    Instrumento {
+        int id_instrumento PK
+        string nombre
+        string modelo "Opcional"
+        int precio
+        int stock
+        string descripcion "Opcional"
+        string foto "Opcional"
+        boolean activo
+        int id_categoria FK
+        int id_marca FK
+        binary version "rowversion"
+    }
+    Venta {
+        int id_venta PK
+        int numero_venta
+        string tipo_pago
+        int monto
+        string estado
+        datetime fecha
+        int id_cliente FK
+        int id_vendedor FK "Opcional"
+    }
+    DetalleVenta {
+        int id_detalle PK
+        int id_venta FK
+        int id_instrumento FK
+        int cantidad
+        int precio_unitario
+    }
+    Resena {
+        int id_resena PK
+        string comentario
+        int valoracion
+        datetime fecha
+        int id_instrumento FK
+        int id_user FK
+    }

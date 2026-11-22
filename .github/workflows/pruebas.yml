@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/validaciones-autenticacion
+      - feat/api-pedidos
       - master
   pull_request:
     branches:
@@ -17,7 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "MasterMusic_CI_SQL_2026!"
+        ports:
+          - 1433:1433
+
+    env:
+      # Credencial del contenedor temporal creado para este trabajo de pruebas.
+      MASTERMUSIC_TEST_SQL: "Server=localhost,1433;User ID=sa;Password=MasterMusic_CI_SQL_2026!;Encrypt=True;TrustServerCertificate=True"
+
     steps:
+      - name: Esperar a SQL Server de pruebas
+        shell: bash
+        run: |
+          for intento in {1..30}; do
+            if docker exec ${{ job.services.sqlserver.id }} /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'MasterMusic_CI_SQL_2026!' -C -Q 'SELECT 1' -b > /dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs ${{ job.services.sqlserver.id }}
+          exit 1
       - name: Descargar el repositorio
         uses: actions/checkout@v4
 
@@ -48,3 +73,24 @@ jobs:
           name: resultados-pruebas
           path: TestResults/*.trx
           if-no-files-found: warn
+  cliente-react:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: MasterMusic.Client
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Instalar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.3'
+          cache: npm
+          cache-dependency-path: MasterMusic.Client/package-lock.json
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Probar el cliente
+        run: npm test
+      - name: Compilar el cliente
+        run: npm run build

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MasterMusic.Api\MasterMusic.Api.csproj" />
+    <ProjectReference Include="..\MasterMusic.Ventas.Api\MasterMusic.Ventas.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
