@@ -1,4 +1,5 @@
 using MasterMusic.Ventas.Api.Data;
+using MasterMusic.Ventas.Api.OpenApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,8 +27,11 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(opciones =>
         };
     };
 });
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(opciones =>
+{
+    opciones.AddDocumentTransformer<DocumentoPedidosTransformer>();
+    opciones.AddOperationTransformer<OperacionPedidosTransformer>();
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opciones =>
@@ -120,6 +124,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(opciones =>
+    {
+        opciones.SwaggerEndpoint("/openapi/v1.json", "MasterMusic Ventas API v1");
+        opciones.DocumentTitle = "MasterMusic | API de pedidos";
+    });
 }
 
 app.UseHttpsRedirection();

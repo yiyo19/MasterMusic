@@ -1,6 +1,16 @@
-@MasterMusic.Ventas.Api_HostAddress = http://localhost:5033
+@VentasUrl = https://localhost:7267
+# Completar solo en una copia local con el token obtenido en Auth/login de la API 7052.
+@TokenCliente =
 
-GET {{MasterMusic.Ventas.Api_HostAddress}}/weatherforecast/
+### Documento OpenAPI (Development)
+GET {{VentasUrl}}/openapi/v1.json
 Accept: application/json
 
-###
+### Consulta protegida: sin token debe responder 401
+GET {{VentasUrl}}/api/v1.0/Pedidos
+Accept: application/json
+
+### Pedidos del cliente autenticado
+GET {{VentasUrl}}/api/v1.0/Pedidos
+Authorization: Bearer {{TokenCliente}}
+Accept: application/json
