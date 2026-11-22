@@ -10,6 +10,17 @@ public sealed class ErroresPersistenciaFilter(ILogger<ErroresPersistenciaFilter>
     public void OnException(ExceptionContext contexto)
     {
         var error = contexto.Exception;
+        if (error is MasterMusic.Api.Data.InstrumentoConStockException)
+        {
+            contexto.Result = new ObjectResult(new ProblemDetails
+            {
+                Type = "about:blank", Status = 409, Title = "Instrumento con existencias",
+                Detail = "Solo puedes eliminar instrumentos con stock cero y sin historial. Puedes desactivarlo para retirarlo del catálogo.",
+                Extensions = { ["codigo"] = "STOCK_NO_CERO" }
+            }) { StatusCode = 409, ContentTypes = { "application/problem+json" } };
+            contexto.ExceptionHandled = true;
+            return;
+        }
         if (error is MasterMusic.Api.Data.RecursoEnUsoException)
         {
             contexto.Result = new ObjectResult(new ProblemDetails

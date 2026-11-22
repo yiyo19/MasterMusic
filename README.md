@@ -39,7 +39,7 @@ El registro público asigna exclusivamente el rol `Cliente`. El administrador in
 - Crear, confirmar y cancelar usan una clave de idempotencia: repetir la misma solicitud con la misma clave recupera el resultado sin duplicar sus efectos.
 - Una respuesta perdida conserva una operación recuperable. El cliente permite consultar su resultado y bloquea un nuevo envío mientras exista incertidumbre.
 - Editar datos de un instrumento no modifica su stock. Las entradas de existencias y la activación tienen acciones propias.
-- Las referencias existentes protegen la eliminación de instrumentos, categorías y marcas; un instrumento puede desactivarse.
+- Un instrumento solo se elimina si su stock es cero y no tiene historial. Las referencias también protegen la eliminación de categorías y marcas; un instrumento puede desactivarse.
 
 El alcance implementado es catálogo, inventario y pedidos. No incluye cobro con pasarela de pago, despacho ni facturación. Las entidades heredadas `Venta`, `DetalleVenta` y `Resena` permanecen en el modelo original; el flujo de pedidos del Trabajo 3 utiliza la segunda API.
 
@@ -201,7 +201,7 @@ dotnet ef database update --project .\MasterMusic.Api --startup-project .\Master
 dotnet ef database update --project .\MasterMusic.Ventas.Api --startup-project .\MasterMusic.Ventas.Api --context MasterMusicVentasContext
 ~~~
 
-Acepta el aviso de confianza del certificado HTTPS de desarrollo. Las migraciones incluidas son `InitialCreate` e `InventarioPedidos` en catálogo, e `InicialPedidos` y `OperacionesPedidos` en pedidos. El comando aplica las migraciones pendientes; no se deben borrar bases ni generar nuevamente estas migraciones para instalar el proyecto.
+Acepta el aviso de confianza del certificado HTTPS de desarrollo. Las migraciones incluidas son `InitialCreate` e `InventarioPedidos` en catálogo, además de CorreoUsuarioUnico para impedir correos repetidos, e `InicialPedidos` y `OperacionesPedidos` en pedidos. El comando aplica las migraciones pendientes; no se deben borrar bases ni generar nuevamente estas migraciones para instalar el proyecto.
 
 ### 4. Instalar el cliente
 
@@ -271,7 +271,7 @@ Todos los paths de esta tabla incluyen la versión `v1.0`. Los detalles de cuerp
 | GET | `/api/v1.0/Instrumentos` y `/{id}` | Público; instrumentos activos. |
 | GET | `/api/v1.0/admin/Instrumentos` y `/{id}` | Administrador; incluye instrumentos inactivos. |
 | POST | `/api/v1.0/Instrumentos` | Administrador; crea un instrumento. |
-| PUT / DELETE | `/api/v1.0/Instrumentos/{id}` | Administrador; edición o eliminación sujeta a referencias. |
+| PUT / DELETE | `/api/v1.0/Instrumentos/{id}` | Administrador; edición o eliminación con stock cero y sin historial. |
 | PATCH | `/api/v1.0/Instrumentos/{id}/estado` | Administrador; activa o desactiva. |
 | POST | `/api/v1.0/Instrumentos/{id}/existencias` | Administrador; suma una cantidad positiva al stock. |
 | GET / POST | `/api/v1.0/Categorias` y `/api/v1.0/Marcas` | Administrador; lista o crea catálogos auxiliares. |
@@ -304,7 +304,7 @@ Para probar con Swagger, inicia sesión en el catálogo, copia el `token` devuel
 
 ## Pruebas e integración continua
 
-La versión actual define **92 casos de prueba .NET**, incluidos **45 con SQL Server**, y **17 pruebas del cliente React**.
+La versión actual define **99 casos de prueba .NET**, incluidos **50 con SQL Server**, y **17 pruebas del cliente React**.
 
 Para probar localmente, detén las APIs con Ctrl+C si sus procesos mantienen bloqueados los archivos de compilación. Desde la raíz:
 
@@ -315,7 +315,7 @@ dotnet test .\MasterMusic.Tests\MasterMusic.Tests.csproj --configuration Release
 
 Adapta el nombre de la instancia si corresponde. La cuenta SQL debe poder crear y eliminar bases de prueba. La fixture crea bases únicas con prefijos `MasterMusicCI_Catalogo_` y `MasterMusicCI_Ventas_`, y las elimina al terminar; no utiliza las bases funcionales `MasterMusicDB` ni `MasterMusicVentasDB`.
 
-Si falta `MASTERMUSIC_TEST_SQL`, se omiten los 45 casos SQL. Una ejecución completa debe mostrar **92 aprobadas, 0 fallidas y 0 omitidas**. El reporte se guarda en `TestResults/pruebas.trx`.
+Si falta `MASTERMUSIC_TEST_SQL`, se omiten los 50 casos SQL. Una ejecución completa debe mostrar **99 aprobadas, 0 fallidas y 0 omitidas**. El reporte se guarda en `TestResults/pruebas.trx`.
 
 Para el cliente:
 
@@ -350,6 +350,8 @@ En GitHub, abre **Actions → Pruebas MasterMusic** y selecciona la ejecución d
 | Despliegue | [Documento](Documentacion/Diagrama-despliegue-MasterMusic.md) · [PNG](Documentacion/Diagrama-despliegue-MasterMusic.png) · [Fuente Mermaid](Documentacion/Diagrama-despliegue-MasterMusic.mmd) |
 | Estados del pedido | [Documento](Documentacion/Diagrama-estados-pedido-MasterMusic.md) · [PNG](Documentacion/Diagrama-estados-pedido-MasterMusic.png) · [Fuente Mermaid](Documentacion/Diagrama-estados-pedido-MasterMusic.mmd) |
 | Contratos de diseño de semana 2 | [Catálogo](Documentacion/Contratos/mastermusic-api.openapi.json) · [Pedidos](Documentacion/Contratos/mastermusic-ventas-api.openapi.json) · [Notas](Documentacion/Contratos/README.md) · [Cambios](Documentacion/Contratos/CAMBIOS.md) |
+| Trazabilidad | [Matriz RF, HU, endpoints y pruebas](Documentacion/Matriz-trazabilidad-MasterMusic.md) |
+| Decisiones de arquitectura | [ADR 001](Documentacion/ADR/ADR-001-dos-apis-y-bases-independientes.md) · [ADR 002](Documentacion/ADR/ADR-002-jwt-roles-y-clave-interna.md) · [ADR 003](Documentacion/ADR/ADR-003-idempotencia-y-stock.md) |
 | Cliente | [Guía de React](MasterMusic.Client/README.md) |
 
 Los contratos estáticos registran el diseño de semana 2. Los enlaces OpenAPI del inicio de este README permiten inspeccionar los endpoints generados por la implementación que se está ejecutando.

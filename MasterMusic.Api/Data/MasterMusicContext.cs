@@ -14,6 +14,7 @@ namespace MasterMusic.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             InventarioModelo.Configurar(modelBuilder);
+            modelBuilder.Entity<Usuario>().HasIndex(u => u.Email).IsUnique();
         }
 
         public DbSet<Rol> Roles { get; set; }

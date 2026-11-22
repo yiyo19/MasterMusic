@@ -139,7 +139,7 @@ public class CatalogoReactSqlTests(PedidosSqlFixture fixture) : IClassFixture<Pe
     [SqlServerFact]
     public async Task InstrumentoConPedido_NoSeElimina()
     {
-        var id = await fixture.CrearInstrumentoAsync(3);
+        var id = await fixture.CrearInstrumentoAsync(1);
         using var solicitud = new HttpRequestMessage(HttpMethod.Post, "/api/v1.0/Pedidos")
         {
             Content = JsonContent.Create(new { lineas = new[] { new { idInstrumento = id, cantidad = 1, precioEsperado = 1000 } } })
@@ -147,8 +147,63 @@ public class CatalogoReactSqlTests(PedidosSqlFixture fixture) : IClassFixture<Pe
         solicitud.Headers.Add("Idempotency-Key", Guid.NewGuid().ToString());
         var pedido = await fixture.Ventas.SendAsync(solicitud);
         Assert.Equal(HttpStatusCode.Created, pedido.StatusCode);
-        Assert.Equal(HttpStatusCode.Conflict, (await Enviar(HttpMethod.Delete, $"Instrumentos/{id}")).StatusCode);
-        Assert.Equal(2, await fixture.StockAsync(id));
+        using var eliminado = await Enviar(HttpMethod.Delete, $"Instrumentos/{id}");
+        Assert.Equal(HttpStatusCode.Conflict, eliminado.StatusCode);
+        var error = await eliminado.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("RECURSO_EN_USO", error.GetProperty("codigo").GetString());
+        Assert.Equal(0, await fixture.StockAsync(id));
+    }
+
+    [SqlServerFact]
+    public async Task InstrumentoConStockSinHistorial_RechazaEliminarYConservaDatos()
+    {
+        var id = await fixture.CrearInstrumentoAsync(5);
+        using var eliminado = await Enviar(HttpMethod.Delete, $"Instrumentos/{id}");
+        Assert.Equal(HttpStatusCode.Conflict, eliminado.StatusCode);
+        Assert.Equal("application/problem+json", eliminado.Content.Headers.ContentType?.MediaType);
+        var error = await eliminado.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("STOCK_NO_CERO", error.GetProperty("codigo").GetString());
+        Assert.Equal(5, await fixture.StockAsync(id));
+        using var consulta = await Enviar(HttpMethod.Get, $"admin/Instrumentos/{id}");
+        Assert.Equal(HttpStatusCode.OK, consulta.StatusCode);
+    }
+
+    [SqlServerFact]
+    public async Task InstrumentoSinStockNiHistorial_SeElimina()
+    {
+        var id = await fixture.CrearInstrumentoAsync(0);
+        using var eliminado = await Enviar(HttpMethod.Delete, $"Instrumentos/{id}");
+        Assert.Equal(HttpStatusCode.NoContent, eliminado.StatusCode);
+        using var consulta = await Enviar(HttpMethod.Get, $"admin/Instrumentos/{id}");
+        Assert.Equal(HttpStatusCode.NotFound, consulta.StatusCode);
+        await using var db = fixture.CrearCatalogo();
+        Assert.False(await db.Instrumentos.AnyAsync(i => i.IdInstrumento == id));
+    }
+
+    [SqlServerFact]
+    public async Task EliminarYSumarStockConcurrentes_NoEliminanExistencias()
+    {
+        var id = await fixture.CrearInstrumentoAsync(0);
+        var eliminacion = Enviar(HttpMethod.Delete, $"Instrumentos/{id}");
+        var entrada = Enviar(HttpMethod.Post, $"Instrumentos/{id}/existencias", new { cantidad = 3 });
+        await Task.WhenAll(eliminacion, entrada);
+        using var eliminado = await eliminacion;
+        using var agregado = await entrada;
+        await using var db = fixture.CrearCatalogo();
+        var instrumento = await db.Instrumentos.AsNoTracking().SingleOrDefaultAsync(i => i.IdInstrumento == id);
+
+        if (agregado.StatusCode == HttpStatusCode.OK)
+        {
+            Assert.Equal(HttpStatusCode.Conflict, eliminado.StatusCode);
+            Assert.NotNull(instrumento);
+            Assert.Equal(3, instrumento.Stock);
+        }
+        else
+        {
+            Assert.Equal(HttpStatusCode.NotFound, agregado.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, eliminado.StatusCode);
+            Assert.Null(instrumento);
+        }
     }
 
     [SqlServerFact]

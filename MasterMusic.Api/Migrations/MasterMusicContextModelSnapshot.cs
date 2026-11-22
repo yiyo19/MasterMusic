@@ -366,6 +366,9 @@ namespace MasterMusic.Api.Migrations
 
                     b.HasKey("IdUser");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("IdRol");
 
                     b.ToTable("Usuario");

@@ -103,7 +103,7 @@ namespace MasterMusic.Tests
         public async Task Delete_ComoAdministrador_Existente_Devuelve204_YDespuesNoExiste()
         {
             await IniciarSesionComoAdministradorAsync();
-            var id = DatosPrueba.CrearInstrumento(_factory);
+            var id = DatosPrueba.CrearInstrumento(_factory, stock: 0);
 
             var respuesta = await _client.DeleteAsync($"{AyudaPruebas.RutaInstrumentos}/{id}");
             Assert.Equal(HttpStatusCode.NoContent, respuesta.StatusCode);

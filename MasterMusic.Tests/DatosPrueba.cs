@@ -23,7 +23,7 @@ namespace MasterMusic.Tests
         }
 
         
-        public static int CrearInstrumento(MasterMusicFactory factory)
+        public static int CrearInstrumento(MasterMusicFactory factory, int stock = 5)
         {
             var (idCategoria, idMarca) = CrearCatalogo(factory);
 
@@ -35,7 +35,7 @@ namespace MasterMusic.Tests
                 Nombre = "Guitarra Eléctrica Stratocaster",
                 Modelo = "Player Series",
                 Precio = 499990,
-                Stock = 5,
+                Stock = stock,
                 Descripcion = "Instrumento de prueba",
                 Foto = "guitarra.jpg",
                 Activo = true,

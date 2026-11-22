@@ -9,6 +9,25 @@ namespace MasterMusic.Tests
 {
     public class AuthValidacionTests
     {
+        [Fact]
+        public async Task Registro_CorreoDuplicado_Devuelve409YSoloConservaUnaCuenta()
+        {
+            using var factory = new MasterMusicFactory();
+            using var client = factory.CreateClient();
+            var correo = $"duplicado_{Guid.NewGuid():N}@example.com";
+            var entrada = new { correo, clave = Guid.NewGuid().ToString("N"), nombreCompleto = "Prueba duplicado" };
+            using var primero = await client.PostAsJsonAsync($"{AyudaPruebas.RutaAuth}/registro", entrada);
+            using var segundo = await client.PostAsJsonAsync($"{AyudaPruebas.RutaAuth}/registro", entrada);
+            Assert.Equal(HttpStatusCode.OK, primero.StatusCode);
+            Assert.Equal(HttpStatusCode.Conflict, segundo.StatusCode);
+            Assert.Equal("application/problem+json", segundo.Content.Headers.ContentType?.MediaType);
+            var problema = await segundo.Content.ReadFromJsonAsync<JsonElement>();
+            Assert.Equal("CORREO_DUPLICADO", problema.GetProperty("codigo").GetString());
+            using var scope = factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<MasterMusicContext>();
+            Assert.Equal(1, await db.Usuarios.CountAsync(u => u.Email == correo));
+        }
+
         [Theory]
         [InlineData("", "Cliente123!", "Cliente")]
         [InlineData("   ", "Cliente123!", "Cliente")]

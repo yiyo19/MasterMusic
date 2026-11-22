@@ -40,3 +40,5 @@ public static class CatalogoTransaccion
 }
 
 public sealed class RecursoEnUsoException() : Exception("El recurso tiene referencias que deben conservarse.");
+
+public sealed class InstrumentoConStockException() : Exception("No se puede eliminar un instrumento con existencias.");

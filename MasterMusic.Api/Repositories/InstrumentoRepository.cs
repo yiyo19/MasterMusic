@@ -59,6 +59,7 @@ namespace MasterMusic.Api.Repositories
             await CatalogoTransaccion.BloquearAsync(_context, "Instrumento", id);
             var instrumento = await _context.Instrumentos.FindAsync(id);
             if (instrumento == null) return false;
+            if (instrumento.Stock != 0) throw new InstrumentoConStockException();
 
             if (await _context.DetallesVentas.AnyAsync(d => d.IdInstrumento == id)
                 || await _context.Resenas.AnyAsync(r => r.IdInstrumento == id)
