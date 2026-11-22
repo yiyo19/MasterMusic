@@ -76,8 +76,7 @@ origen exacto, sin una barra al final. Se admiten varios orígenes mediante
 Cors__AllowedOrigins__1, etc. Fuera de Development no se permite ningún origen
 si no está configurado. La clave interna de inventario permanece entre APIs.
 
-Este cambio no altera el modelo de datos ni requiere migraciones adicionales.
-Sí requiere reiniciar las dos APIs para cargar los controladores y CORS.
+La instalación de las APIs y sus migraciones se describe en el [README principal](../README.md). Reinicia las APIs si modificas sus variables de entorno.
 
 ## Comprobación funcional
 
@@ -118,7 +117,7 @@ Desde la raíz del repositorio, con SQL Server disponible:
     $env:MASTERMUSIC_TEST_SQL = 'Server=.\SQLEXPRESS;Database=master;Integrated Security=True;Encrypt=True;TrustServerCertificate=True'
     dotnet test .\MasterMusic.Tests\MasterMusic.Tests.csproj --logger "trx;LogFileName=react-catalogo.trx" --results-directory .\TestResults\React
 
-Se esperan 85 pruebas de API, todas aprobadas y ninguna omitida. Las pruebas
+Se esperan 92 pruebas de API, todas aprobadas y ninguna omitida. Las pruebas
 SQL crean y eliminan bases temporales con prefijo MasterMusicCI_; no utilizan
 MasterMusicDB ni MasterMusicVentasDB. La cuenta de pruebas necesita permisos
 para crear esas bases. No sustituyas su configuración por una conexión de
