@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" version="24.7.17">
+  <diagram id="12-casos-uso-administracion" name="MasterMusic · Casos de uso: administración">
+    <mxGraphModel dx="1600" dy="1660" grid="1" gridSize="10" page="1" pageWidth="1600" pageHeight="1660">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="MasterMusic · Casos de uso: administración" style="text;html=0;align=left;fontSize=28;fontStyle=1;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="24" width="1520" height="45" />
+        </mxCell>
+        <mxCell id="subtitle" value="Trabajo 3 · Construcción de Software · Implementación al 22-11-2026" style="text;html=0;align=left;fontSize=18;fontColor=#536e7a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="74" width="1520" height="30" />
+        </mxCell>
+        <mxCell id="boundary" value="MasterMusic" style="swimlane;html=0;startSize=48;fillColor=#ffffff;strokeColor=#3c7775;fontSize=23;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="260" y="140" width="1290" height="1460" />
+        </mxCell>
+        <mxCell id="edge0" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=block;endFill=0;exitX=0.5;exitY=0.0;exitPerimeter=0;entryX=0.5;entryY=1.4285714285714286;entryPerimeter=0;" edge="1" parent="1" source="a" target="u">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="instrumentos">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="categorias">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge3" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="marcas">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge4" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="entrada">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge5" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="pedidos">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge6" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="confirmar">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge7" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="cancelar">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge8" value="" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;endArrow=none;exitX=1.0;exitY=0.42857142857142855;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="a" target="recuperar">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="edge9" value="«include»" style="html=0;rounded=0;strokeColor=#536e7a;strokeWidth=2;fontSize=18;labelBackgroundColor=#ffffff;dashed=1;endArrow=open;endFill=0;exitX=1.0;exitY=0.5;exitPerimeter=0;entryX=0.0;entryY=0.5;entryPerimeter=0;" edge="1" parent="1" source="cancelar" target="devolver">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="u" value="Usuario web" style="shape=umlActor;html=0;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#ffffff;strokeColor=#3c7775;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="70" y="190" width="80" height="140" />
+        </mxCell>
+        <mxCell id="a" value="Administrador" style="shape=umlActor;html=0;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#ffffff;strokeColor=#3c7775;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="70" y="800" width="80" height="140" />
+        </mxCell>
+        <mxCell id="auth" value="Requiere sesión con rol Administrador.&#10;Hereda catálogo, detalle y sesión de Usuario web.&#10;No hereda los permisos exclusivos del Cliente." style="text;html=0;align=center;fontSize=18;fontColor=#536e7a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="990" y="230" width="500" height="150" />
+        </mxCell>
+        <mxCell id="instrumentos" value="Gestionar instrumentos&#10;RF-06 a RF-10" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="235" width="480" height="110" />
+        </mxCell>
+        <mxCell id="categorias" value="Gestionar categorías (CRUD)&#10;RF-11" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="395" width="480" height="110" />
+        </mxCell>
+        <mxCell id="marcas" value="Gestionar marcas (CRUD)&#10;RF-12" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="555" width="480" height="110" />
+        </mxCell>
+        <mxCell id="entrada" value="Registrar entrada de stock&#10;RF-13" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="715" width="480" height="110" />
+        </mxCell>
+        <mxCell id="pedidos" value="Consultar todos los pedidos&#10;RF-19" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="875" width="480" height="110" />
+        </mxCell>
+        <mxCell id="confirmar" value="Confirmar pedido Pendiente&#10;RF-20/21" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="1035" width="480" height="110" />
+        </mxCell>
+        <mxCell id="cancelar" value="Cancelar pedido Pendiente&#10;RF-20/21" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="1195" width="480" height="110" />
+        </mxCell>
+        <mxCell id="recuperar" value="Recuperar operación incierta&#10;RF-22" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="420" y="1415" width="480" height="110" />
+        </mxCell>
+        <mxCell id="crud" value="Gestionar instrumentos comprende:&#10;consultar, crear, editar, activar, desactivar&#10;y eliminar cuando las reglas lo permitan." style="text;html=0;align=center;fontSize=18;fontColor=#536e7a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1000" y="450" width="490" height="150" />
+        </mxCell>
+        <mxCell id="estado" value="Confirmar no vuelve a descontar stock.&#10;Confirmado y Cancelado son estados finales.&#10;No se eliminan pedidos." style="text;html=0;align=center;fontSize=18;fontColor=#536e7a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1000" y="880" width="490" height="180" />
+        </mxCell>
+        <mxCell id="devolver" value="Devolver stock una sola vez&#10;RF-21" style="ellipse;html=0;whiteSpace=wrap;fillColor=#eef7f6;strokeColor=#3c7775;fontSize=21;fontColor=#193441;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1090" y="1195" width="400" height="110" />
+        </mxCell>
+        <mxCell id="motivo" value="Cancelar exige un motivo.&#10;La devolución se verifica antes de&#10;marcar el pedido Cancelado." style="text;html=0;align=center;fontSize=18;fontColor=#536e7a;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1030" y="1360" width="470" height="150" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

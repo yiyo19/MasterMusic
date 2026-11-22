@@ -342,7 +342,8 @@ En GitHub, abre **Actions → Pruebas MasterMusic** y selecciona la ejecución d
 | Requisitos | [ERS](Documentacion/ERS-MasterMusic.docx) |
 | Plan y avance inicial | [Plan de trabajo](Documentacion/Plan-de-trabajo-MasterMusic.docx) · [Informe de semana 1](Documentacion/Informe-Avance-Semana-1.md) |
 | Análisis documental | [Análisis Audiomúsica](Documentacion/AD-01-analisis-audiomusica.docx) |
-| Casos de uso | [Diagrama](Documentacion/Diagrama%20CasoDeUso.drawio.png) |
+| Modelado completo | [Índice de diagramas, fuentes y exportaciones](Documentacion/Indice-diagramas-MasterMusic.md) |
+| Casos de uso | [Vistas UML actualizadas](Documentacion/Casos-de-uso-MasterMusic.md) · [Diagrama de semana 1](Documentacion/Diagrama%20CasoDeUso.drawio.png) |
 | Arquitectura | [Documento](Documentacion/Arquitectura-MasterMusic.md) |
 | Clases | [Diagrama](Documentacion/Diagrama-clases-MasterMusic.md) |
 | Datos de ambas APIs | [Modelo entidad–relación](Documentacion/Modelo-entidad-relacion-MasterMusic.md) |

@@ -1,0 +1,27 @@
+sequenceDiagram
+    actor U as Usuario
+    participant R as React
+    participant A as API catálogo
+    participant D as MasterMusicDB
+    U->>R: Ingresar correo y contraseña
+    R->>R: Validar formulario y mostrar carga
+    R->>A: POST /api/v1.0/Auth/login
+    A->>A: Validar LoginDto
+    alt Campos inválidos
+        A-->>R: 400 · VALIDACION
+        R-->>U: Mostrar errores
+    else Datos válidos
+        A->>D: Consultar Usuario y Rol por correo
+        D-->>A: Cuenta y hash, o sin coincidencia
+        A->>A: Verificar cuenta activa y BCrypt
+        alt Credenciales rechazadas
+            A-->>R: 401 · CREDENCIALES_INVALIDAS
+            R-->>U: Informar rechazo
+        else Credenciales aceptadas
+            A->>A: Firmar JWT con identidad, rol y vencimiento
+            A-->>R: 200 · Token y datos públicos
+            R->>R: Conservar JWT en memoria
+            R-->>U: Mostrar opciones según rol
+        end
+    end
+    Note over R: Finalizar carga en éxito o error

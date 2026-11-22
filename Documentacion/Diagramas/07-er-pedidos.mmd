@@ -1,0 +1,36 @@
+erDiagram
+    Pedido ||--|{ DetallePedido : contiene
+    Pedido |o--o{ OperacionPedido : asociado_a
+
+    Pedido {
+        guid id_pedido PK
+        int id_cliente "Referencia externa a Usuario"
+        datetime fecha
+        string estado "Pendiente Confirmado Cancelado"
+        bigint total
+        string motivo_cancelacion "Opcional salvo Cancelado"
+        binary version "rowversion"
+    }
+    DetallePedido {
+        int id_detalle_pedido PK
+        guid id_pedido FK
+        int id_instrumento "Referencia externa a Instrumento"
+        string nombre_instrumento "Copia historica"
+        int cantidad
+        int precio_unitario "Precio historico CLP"
+    }
+    OperacionPedido {
+        guid id_operacion PK "Generado por el servidor"
+        guid clave_cliente "Clave de reintento"
+        int id_usuario "Actor obtenido del JWT"
+        guid id_pedido FK "Opcional hasta aceptar el alta"
+        string tipo "Crear Confirmar Cancelar"
+        string estado_operacion "EnProceso Completada Rechazada"
+        string huella_solicitud
+        string solicitud_json "Comando persistido para recuperacion"
+        string problema_json "Resultado de rechazo opcional"
+        datetime fecha_creacion
+        datetime fecha_actualizacion
+        string codigo_resultado "Opcional"
+        binary version "rowversion"
+    }

@@ -1,0 +1,28 @@
+erDiagram
+    MovimientoInventario ||--|{ DetalleMovimientoInventario : contiene
+    Instrumento ||--o{ DetalleMovimientoInventario : registra
+    MovimientoInventario |o--o| MovimientoInventario : revierte
+
+    Instrumento {
+        int id_instrumento PK
+        int stock
+        boolean activo
+        binary version "rowversion"
+    }
+    MovimientoInventario {
+        guid id_operacion PK "Clave de idempotencia"
+        guid id_pedido "Referencia externa"
+        int id_cliente "Identificador verificado"
+        string tipo "Descuento o Devolucion"
+        string huella_solicitud "SHA256 de datos canonicos"
+        datetime fecha
+        guid id_operacion_origen FK "Solo en devoluciones"
+    }
+    DetalleMovimientoInventario {
+        int id_detalle_movimiento PK
+        guid id_operacion FK
+        int id_instrumento FK
+        int cantidad
+        string nombre_instrumento "Copia historica"
+        int precio_unitario "Precio aplicado"
+    }

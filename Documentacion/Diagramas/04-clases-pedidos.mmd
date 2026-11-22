@@ -1,0 +1,49 @@
+classDiagram
+    direction TB
+    class Pedido {
+        +Guid IdPedido
+        +int IdCliente
+        +DateTime Fecha
+        +EstadoPedido Estado
+        +long Total
+        +string MotivoCancelacion
+        +byte[] Version
+        +long TotalMaximo$
+        +CalcularTotal() long
+        +Confirmar() void
+        +Cancelar(string motivo) void
+        -VerificarPendiente() void
+    }
+    class DetallePedido {
+        +int IdDetallePedido
+        +Guid IdPedido
+        +int IdInstrumento
+        +string NombreInstrumento
+        +int Cantidad
+        +int PrecioUnitario
+        +CalcularSubtotal() long
+    }
+    class EstadoPedido {
+        <<enumeration>>
+        Pendiente
+        Confirmado
+        Cancelado
+    }
+    class OperacionPedido {
+        +Guid IdOperacion
+        +Guid ClaveCliente
+        +int IdUsuario
+        +Guid? IdPedido
+        +string Tipo
+        +string EstadoOperacion
+        +string HuellaSolicitud
+        +string SolicitudJson
+        +DateTime FechaCreacion
+        +DateTime FechaActualizacion
+        +string CodigoResultado
+        +string ProblemaJson
+        +byte[] Version
+    }
+    Pedido "1" *-- "1..*" DetallePedido : detalles históricos
+    Pedido "0..1" -- "0..*" OperacionPedido : resultado asociado
+    Pedido ..> EstadoPedido : utiliza
