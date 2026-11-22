@@ -115,6 +115,12 @@ builder.Services.AddDbContext<MasterMusicContext>(options =>
 
 builder.Services.AddScoped<IInstrumentoRepository, InstrumentoRepository>();
 
+var origenesCliente = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? (builder.Environment.IsDevelopment() ? new[] { "http://localhost:5173" } : Array.Empty<string>());
+builder.Services.AddCors(opciones => opciones.AddPolicy("ClienteReact", politica =>
+    politica.WithOrigins(origenesCliente).AllowAnyHeader().AllowAnyMethod()
+        .WithExposedHeaders("Location", "Retry-After")));
+
 var app = builder.Build();
 if (string.IsNullOrWhiteSpace(app.Configuration["Jwt:Key"]))
     throw new InvalidOperationException("Falta la variable de entorno Jwt__Key.");
@@ -133,6 +139,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseCors("ClienteReact");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -10,6 +10,17 @@ public sealed class ErroresPersistenciaFilter(ILogger<ErroresPersistenciaFilter>
     public void OnException(ExceptionContext contexto)
     {
         var error = contexto.Exception;
+        if (error is MasterMusic.Api.Data.RecursoEnUsoException)
+        {
+            contexto.Result = new ObjectResult(new ProblemDetails
+            {
+                Type = "about:blank", Status = 409, Title = "Recurso en uso",
+                Detail = "Existen referencias. Conserva el recurso; puedes desactivar un instrumento.",
+                Extensions = { ["codigo"] = "RECURSO_EN_USO" }
+            }) { StatusCode = 409, ContentTypes = { "application/problem+json" } };
+            contexto.ExceptionHandled = true;
+            return;
+        }
         if (error is not (DbException or DbUpdateException or TimeoutException)
             && error is not InvalidOperationException { InnerException: DbException })
             return;

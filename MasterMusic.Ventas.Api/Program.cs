@@ -108,6 +108,12 @@ if (string.IsNullOrWhiteSpace(conexionVentas))
 builder.Services.AddDbContext<MasterMusicVentasContext>(opciones =>
     opciones.UseSqlServer(conexionVentas));
 
+var origenesCliente = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? (builder.Environment.IsDevelopment() ? new[] { "http://localhost:5173" } : Array.Empty<string>());
+builder.Services.AddCors(opciones => opciones.AddPolicy("ClienteReact", politica =>
+    politica.WithOrigins(origenesCliente).AllowAnyHeader().AllowAnyMethod()
+        .WithExposedHeaders("Location", "Retry-After")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -117,6 +123,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("ClienteReact");
 
 app.UseAuthentication();
 app.UseAuthorization();

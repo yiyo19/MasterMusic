@@ -159,6 +159,7 @@ public sealed class PedidosSqlFixture : IAsyncLifetime
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
+            builder.UseSetting("Cors:AllowedOrigins:0", "http://localhost:5173");
             builder.UseSetting("ConnectionStrings:MasterMusic", conexion);
             builder.UseSetting("Jwt:Key", ClaveJwt);
             builder.UseSetting("Jwt:Issuer", "MasterMusicSqlCI");
@@ -175,6 +176,7 @@ public sealed class PedidosSqlFixture : IAsyncLifetime
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
+            builder.UseSetting("Cors:AllowedOrigins:0", "http://localhost:5173");
             builder.UseSetting("ConnectionStrings:MasterMusicVentas", conexion);
             builder.UseSetting("Jwt:Key", ClaveJwt);
             builder.UseSetting("Jwt:Issuer", "MasterMusicSqlCI");

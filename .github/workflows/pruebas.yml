@@ -73,3 +73,24 @@ jobs:
           name: resultados-pruebas
           path: TestResults/*.trx
           if-no-files-found: warn
+  cliente-react:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: MasterMusic.Client
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Instalar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.3'
+          cache: npm
+          cache-dependency-path: MasterMusic.Client/package-lock.json
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Probar el cliente
+        run: npm test
+      - name: Compilar el cliente
+        run: npm run build

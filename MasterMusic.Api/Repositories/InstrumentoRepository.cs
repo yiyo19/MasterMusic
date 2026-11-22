@@ -1,4 +1,4 @@
-﻿using MasterMusic.Api.Data;
+using MasterMusic.Api.Data;
 using MasterMusic.Api.Entities;
 using MasterMusic.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -42,19 +42,33 @@ namespace MasterMusic.Api.Repositories
             var actual = await _context.Instrumentos.FindAsync(instrumento.IdInstrumento);
             if (actual == null) return false;
             var version = actual.Version;
+            var stock = actual.Stock;
+            var activo = actual.Activo;
             _context.Entry(actual).CurrentValues.SetValues(instrumento);
             actual.Version = version;
+            // El PUT de datos no sobrescribe el inventario ni el estado.
+            actual.Stock = stock;
+            actual.Activo = activo;
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
+            await using var tx = await CatalogoTransaccion.IniciarAsync(_context);
+            await CatalogoTransaccion.BloquearAsync(_context, "Instrumento", id);
             var instrumento = await _context.Instrumentos.FindAsync(id);
             if (instrumento == null) return false;
 
+            if (await _context.DetallesVentas.AnyAsync(d => d.IdInstrumento == id)
+                || await _context.Resenas.AnyAsync(r => r.IdInstrumento == id)
+                || await _context.Set<DetalleMovimientoInventario>().AnyAsync(d => d.IdInstrumento == id))
+                throw new RecursoEnUsoException();
+
             _context.Instrumentos.Remove(instrumento);
-            return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+            if (tx is not null) await tx.CommitAsync();
+            return true;
         }
 
         public async Task<bool> ExisteAsync(int id)

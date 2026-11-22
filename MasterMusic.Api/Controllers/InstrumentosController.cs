@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
+using MasterMusic.Api.Dtos;
 using MasterMusic.Api.Entities;
 using MasterMusic.Api.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace MasterMusic.Api.Controllers
         public async Task<IActionResult> GetAll()
         {
             var instrumentos = await _repository.GetAllAsync();
-            return Ok(instrumentos);
+            return Ok(instrumentos.Where(i => i.Activo).Select(InstrumentoRespuesta.Desde));
         }
 
         
@@ -35,10 +36,10 @@ namespace MasterMusic.Api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var instrumento = await _repository.GetByIdAsync(id);
-            if (instrumento == null)
+            if (instrumento == null || !instrumento.Activo)
                 return NotFound(new { message = "Instrumento no encontrado" });
 
-            return Ok(instrumento);
+            return Ok(InstrumentoRespuesta.Desde(instrumento));
         }
 
        
@@ -55,8 +56,13 @@ namespace MasterMusic.Api.Controllers
             if (!await _repository.MarcaExisteAsync(instrumento.IdMarca))
                 return BadRequest(new { message = "La marca indicada no existe." });
 
+            instrumento.IdInstrumento = 0;
+            instrumento.Activo = true;
+            instrumento.Categoria = null;
+            instrumento.Marca = null;
             var nuevoInstrumento = await _repository.AddAsync(instrumento);
-            return CreatedAtAction(nameof(GetById), new { id = nuevoInstrumento.IdInstrumento, version = "1.0" }, nuevoInstrumento);
+            nuevoInstrumento = (await _repository.GetByIdAsync(nuevoInstrumento.IdInstrumento))!;
+            return CreatedAtAction(nameof(GetById), new { id = nuevoInstrumento.IdInstrumento, version = "1.0" }, InstrumentoRespuesta.Desde(nuevoInstrumento));
         }
 
         
