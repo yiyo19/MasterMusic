@@ -1,0 +1,523 @@
+{
+  "rendimiento": {
+    "requisito": "RNF-04",
+    "instrumentos": 100,
+    "consultas": 100,
+    "correctasEnDosSegundos": 100,
+    "porcentaje": 100,
+    "p95Ms": 72.203,
+    "cumple": true
+  },
+  "disponibilidad": {
+    "requisito": "RNF-05",
+    "duracionSegundos": 1800.0164128000001,
+    "porApi": {
+      "catalogo": {
+        "consultas": 60,
+        "correctas": 60,
+        "cumpleLecturas": true
+      },
+      "pedidos": {
+        "consultas": 60,
+        "correctas": 60,
+        "cumpleLecturas": true
+      }
+    },
+    "intervalosDeTreintaSegundos": true,
+    "sinReinicios": true,
+    "cumple": true
+  },
+  "limpieza": [
+    {
+      "id": 7,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 8,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 9,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 10,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 11,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 12,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 13,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 14,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 15,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 16,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 17,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 18,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 19,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 20,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 21,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 22,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 23,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 24,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 25,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 26,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 27,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 28,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 29,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 30,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 31,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 32,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 33,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 34,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 35,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 36,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 37,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 38,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 39,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 40,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 41,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 42,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 43,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 44,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 45,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 46,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 47,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 48,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 49,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 50,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 51,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 52,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 53,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 54,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 55,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 56,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 57,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 58,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 59,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 60,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 61,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 62,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 63,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 64,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 65,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 66,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 67,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 68,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 69,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 70,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 71,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 72,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 73,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 74,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 75,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 76,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 77,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 78,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 79,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 80,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 81,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 82,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 83,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 84,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 85,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 86,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 87,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 88,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 89,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 90,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 91,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 92,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 93,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 94,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 95,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 96,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 97,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 98,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 99,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 100,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 101,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 102,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 103,
+      "eliminado": true,
+      "status": 204
+    },
+    {
+      "id": 104,
+      "eliminado": true,
+      "status": 204
+    }
+  ],
+  "fin": "2026-11-22T20:28:44.484Z"
+}
