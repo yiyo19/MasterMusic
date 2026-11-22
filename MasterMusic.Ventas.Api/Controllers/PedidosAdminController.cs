@@ -13,10 +13,15 @@ namespace MasterMusic.Ventas.Api.Controllers;
 [Route("api/v1.0/admin/Pedidos")]
 [Authorize(Roles = "Administrador")]
 [TypeFilter(typeof(ErroresPersistenciaFilter))]
+[ProducesResponseType(typeof(ProblemDetails), 400)]
+[ProducesResponseType(typeof(ProblemDetails), 401)]
+[ProducesResponseType(typeof(ProblemDetails), 403)]
+[ProducesResponseType(typeof(ProblemDetails), 503)]
 public class PedidosAdminController(
     MasterMusicVentasContext contexto, CambiosPedidosService servicio) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(typeof(List<PedidoRespuesta>), 200)]
     public async Task<IActionResult> Listar(CancellationToken cancelacion)
     {
         var pedidos = await contexto.Pedidos.AsNoTracking().Include(p => p.Detalles)
@@ -25,6 +30,8 @@ public class PedidosAdminController(
     }
 
     [HttpGet("{idPedido:guid}")]
+    [ProducesResponseType(typeof(PedidoRespuesta), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<IActionResult> Consultar(Guid idPedido, CancellationToken cancelacion)
     {
         var pedido = await contexto.Pedidos.AsNoTracking().Include(p => p.Detalles)
@@ -35,11 +42,19 @@ public class PedidosAdminController(
     }
 
     [HttpPost("{idPedido:guid}/confirmacion")]
+    [ProducesResponseType(typeof(PedidoRespuesta), 200)]
+    [ProducesResponseType(typeof(OperacionRespuesta), 202)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 409)]
     public Task<IActionResult> Confirmar(Guid idPedido,
         [FromHeader(Name = "Idempotency-Key")] string? clave, CancellationToken cancelacion) =>
         EjecutarAsync(idPedido, "Confirmar", clave, null, cancelacion);
 
     [HttpPost("{idPedido:guid}/cancelacion")]
+    [ProducesResponseType(typeof(PedidoRespuesta), 200)]
+    [ProducesResponseType(typeof(OperacionRespuesta), 202)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 409)]
     public Task<IActionResult> Cancelar(Guid idPedido, PedidoCancelar solicitud,
         [FromHeader(Name = "Idempotency-Key")] string? clave, CancellationToken cancelacion) =>
         EjecutarAsync(idPedido, "Cancelar", clave, solicitud.Motivo, cancelacion);

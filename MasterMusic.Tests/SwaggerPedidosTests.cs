@@ -80,6 +80,70 @@ public class SwaggerPedidosTests
         Assert.Equal(HttpStatusCode.NotFound, respuesta.StatusCode);
     }
 
+
+    [Fact]
+    public async Task Contrato_CrearDistinguePedidoNuevoReintentoYResultadoIncierto()
+    {
+        using var fabrica = new DocumentacionFactory();
+        using var cliente = fabrica.CrearCliente();
+        using var json = JsonDocument.Parse(await cliente.GetStringAsync("/openapi/v1.json"));
+        var raiz = json.RootElement;
+        var respuestas = raiz.GetProperty("paths").GetProperty("/api/v1.0/Pedidos")
+            .GetProperty("post").GetProperty("responses");
+        foreach (var estado in new[] { "200", "201", "202", "400", "401", "403", "404", "409", "503" })
+            Assert.True(respuestas.TryGetProperty(estado, out _), estado);
+        foreach (var estado in new[] { "200", "201" })
+        {
+            var pedido = EsquemaRespuesta(raiz, respuestas.GetProperty(estado)).GetProperty("properties");
+            Assert.True(pedido.TryGetProperty("idPedido", out _));
+            Assert.True(pedido.TryGetProperty("detalles", out _));
+            Assert.False(pedido.TryGetProperty("idOperacion", out _));
+        }
+        var pendiente = respuestas.GetProperty("202");
+        var operacion = EsquemaRespuesta(raiz, pendiente).GetProperty("properties");
+        Assert.True(operacion.TryGetProperty("idOperacion", out _));
+        Assert.True(operacion.TryGetProperty("recuperable", out _));
+        Assert.True(pendiente.GetProperty("headers").TryGetProperty("Location", out _));
+        Assert.True(pendiente.GetProperty("headers").TryGetProperty("Retry-After", out _));
+        Assert.True(respuestas.GetProperty("409").GetProperty("content")
+            .TryGetProperty("application/problem+json", out _));
+    }
+
+    [Fact]
+    public async Task Contrato_AdministracionYRecuperacionConservanSuTipoDeRespuesta()
+    {
+        using var fabrica = new DocumentacionFactory();
+        using var cliente = fabrica.CrearCliente();
+        using var json = JsonDocument.Parse(await cliente.GetStringAsync("/openapi/v1.json"));
+        var raiz = json.RootElement;
+        var rutas = raiz.GetProperty("paths");
+        foreach (var accion in new[] { "confirmacion", "cancelacion" })
+        {
+            var respuestas = rutas.GetProperty("/api/v1.0/admin/Pedidos/{idPedido}/" + accion)
+                .GetProperty("post").GetProperty("responses");
+            Assert.True(EsquemaRespuesta(raiz, respuestas.GetProperty("200"))
+                .GetProperty("properties").TryGetProperty("detalles", out _));
+            Assert.True(EsquemaRespuesta(raiz, respuestas.GetProperty("202"))
+                .GetProperty("properties").TryGetProperty("idOperacion", out _));
+            Assert.True(respuestas.TryGetProperty("409", out _));
+        }
+        var recuperar = rutas.GetProperty("/api/v1.0/Operaciones/{idOperacion}/recuperacion")
+            .GetProperty("post").GetProperty("responses");
+        foreach (var estado in new[] { "200", "202" })
+            Assert.True(EsquemaRespuesta(raiz, recuperar.GetProperty(estado))
+                .GetProperty("properties").TryGetProperty("estadoOperacion", out _));
+    }
+
+    private static JsonElement EsquemaRespuesta(JsonElement raiz, JsonElement respuesta)
+    {
+        var esquema = respuesta.GetProperty("content").GetProperty("application/json").GetProperty("schema");
+        if (!esquema.TryGetProperty("$ref", out var referencia)) return esquema;
+        var actual = raiz;
+        foreach (var segmento in referencia.GetString()![2..].Split('/'))
+            actual = actual.GetProperty(segmento.Replace("~1", "/").Replace("~0", "~"));
+        return actual;
+    }
+
     private sealed class DocumentacionFactory(string entorno = "Development")
         : WebApplicationFactory<PedidosController>
     {

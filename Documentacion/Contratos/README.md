@@ -2,6 +2,8 @@
 
 Versión inicial de diseño: 1.0.0 — 10 de noviembre de 2026.
 
+**Lectura al cierre (22 de noviembre de 2026):** el contenido siguiente conserva el diseño de semana 2. Para conocer la implementación y sus diferencias, consulta [Comparación diseño–implementación](Comparacion-diseno-implementacion.md), las exportaciones de Implementacion y [CAMBIOS.md](CAMBIOS.md). Las funcionalidades descritas en futuro más abajo corresponden a la fecha del diseño; no deben interpretarse como una lista actual de pendientes.
+
 Estos dos archivos JSON son contratos OpenAPI 3.0.3 importables en herramientas compatibles. Cubren el contrato de ambas APIs solicitado en el Hito 2 (semana 2). Describen el comportamiento objetivo; no prueban que los endpoints nuevos estén implementados. La especificación utilizada es https://spec.openapis.org/oas/v3.0.3.html.
 
 | Archivo | Responsabilidad |

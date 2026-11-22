@@ -13,9 +13,15 @@ namespace MasterMusic.Ventas.Api.Controllers;
 [Route("api/v1.0/Operaciones")]
 [Authorize(Roles = "Cliente,Administrador")]
 [TypeFilter(typeof(ErroresPersistenciaFilter))]
+[ProducesResponseType(typeof(ProblemDetails), 400)]
+[ProducesResponseType(typeof(ProblemDetails), 401)]
+[ProducesResponseType(typeof(ProblemDetails), 403)]
+[ProducesResponseType(typeof(ProblemDetails), 503)]
 public class OperacionesController(MasterMusicVentasContext contexto) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(typeof(OperacionRespuesta), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<IActionResult> Buscar(Guid claveCliente, string tipo, CancellationToken cancelacion)
     {
         if (claveCliente == Guid.Empty || tipo is not ("Crear" or "Confirmar" or "Cancelar"))
@@ -31,6 +37,8 @@ public class OperacionesController(MasterMusicVentasContext contexto) : Controll
     }
 
     [HttpGet("{idOperacion:guid}")]
+    [ProducesResponseType(typeof(OperacionRespuesta), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<IActionResult> Consultar(Guid idOperacion, CancellationToken cancelacion)
     {
         var idUsuario = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -43,6 +51,9 @@ public class OperacionesController(MasterMusicVentasContext contexto) : Controll
     }
 
     [HttpPost("{idOperacion:guid}/recuperacion")]
+    [ProducesResponseType(typeof(OperacionRespuesta), 200)]
+    [ProducesResponseType(typeof(OperacionRespuesta), 202)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<IActionResult> Recuperar(Guid idOperacion,
         [FromServices] CreacionPedidosService servicio,
         [FromServices] CambiosPedidosService cambios, CancellationToken cancelacion)

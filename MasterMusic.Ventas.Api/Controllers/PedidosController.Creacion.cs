@@ -9,9 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace MasterMusic.Ventas.Api.Controllers;
 
 [TypeFilter(typeof(ErroresPersistenciaFilter))]
+[ProducesResponseType(typeof(ProblemDetails), 400)]
+[ProducesResponseType(typeof(ProblemDetails), 401)]
+[ProducesResponseType(typeof(ProblemDetails), 403)]
+[ProducesResponseType(typeof(ProblemDetails), 503)]
 public partial class PedidosController
 {
     [HttpGet("{idPedido:guid}")]
+    [ProducesResponseType(typeof(PedidoRespuesta), 200)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<IActionResult> ConsultarPedido(Guid idPedido, CancellationToken cancelacion)
     {
         var idCliente = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -23,6 +29,11 @@ public partial class PedidosController
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(PedidoRespuesta), 200)]
+    [ProducesResponseType(typeof(PedidoRespuesta), 201)]
+    [ProducesResponseType(typeof(OperacionRespuesta), 202)]
+    [ProducesResponseType(typeof(ProblemDetails), 404)]
+    [ProducesResponseType(typeof(ProblemDetails), 409)]
     public async Task<IActionResult> CrearPedido(PedidoCrear solicitud,
         [FromHeader(Name = "Idempotency-Key")] string? clave,
         [FromServices] CreacionPedidosService servicio, CancellationToken cancelacion)

@@ -57,11 +57,14 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Ingresa únicamente tu token JWT devuelto por el Login."
     });
 
-    // Requerimiento global de seguridad compatible con .NET 10
-    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    options.AddSecurityDefinition("ServiceKey", new OpenApiSecurityScheme
     {
-        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        Name = "X-Service-Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Description = "Clave interna de integración. Se requiere junto con el JWT solamente en /interno/Movimientos."
     });
+    options.DocumentFilter<MasterMusic.Api.OpenApi.ContratoCatalogoFilter>();
 });
 
 

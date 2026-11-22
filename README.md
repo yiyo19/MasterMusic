@@ -304,7 +304,7 @@ Para probar con Swagger, inicia sesión en el catálogo, copia el `token` devuel
 
 ## Pruebas e integración continua
 
-La versión actual define **99 casos de prueba .NET**, incluidos **50 con SQL Server**, y **17 pruebas del cliente React**.
+La versión actual define **103 casos de prueba .NET**, incluidos **50 con SQL Server**, y **17 pruebas del cliente React**.
 
 Para probar localmente, detén las APIs con Ctrl+C si sus procesos mantienen bloqueados los archivos de compilación. Desde la raíz:
 
@@ -315,7 +315,7 @@ dotnet test .\MasterMusic.Tests\MasterMusic.Tests.csproj --configuration Release
 
 Adapta el nombre de la instancia si corresponde. La cuenta SQL debe poder crear y eliminar bases de prueba. La fixture crea bases únicas con prefijos `MasterMusicCI_Catalogo_` y `MasterMusicCI_Ventas_`, y las elimina al terminar; no utiliza las bases funcionales `MasterMusicDB` ni `MasterMusicVentasDB`.
 
-Si falta `MASTERMUSIC_TEST_SQL`, se omiten los 50 casos SQL. Una ejecución completa debe mostrar **99 aprobadas, 0 fallidas y 0 omitidas**. El reporte se guarda en `TestResults/pruebas.trx`.
+Si falta `MASTERMUSIC_TEST_SQL`, se omiten los 50 casos SQL. Una ejecución completa debe mostrar **103 aprobadas, 0 fallidas y 0 omitidas**. El reporte se guarda en `TestResults/pruebas.trx`.
 
 Para el cliente:
 

@@ -47,3 +47,16 @@ El cliente React interpreta `detail` y `codigo` además de los campos de error h
 Las pruebas agregadas cubren rechazo y conservación de stock, eliminación válida, competencia entre eliminar y sumar stock, correo repetido, altas simultáneas, la restricción SQL y la correspondencia entre modelo y snapshot. La suite define 99 casos .NET; el resultado de ejecución se acredita mediante el TRX del commit probado.
 
 La exportación final de las APIs y su comparación integral con el diseño de 1.0.0 constituyen una comprobación distinta de estos ajustes. Algunos errores heredados de instrumentos todavía utilizan `message`. La implementación recupera altas inciertas, pero no ejecuta la compensación automática propuesta inicialmente.
+
+
+## 1.0.2 — 2026-11-22 — Documentación de la implementación en Swagger
+
+Se completan metadatos; no se alteran rutas, reglas de negocio, bases de datos ni migraciones.
+
+- La API de catálogo deja de declarar Bearer como requisito global. Registro, login y lectura pública se documentan sin JWT; administración exige Bearer e inventario interno exige Bearer y X-Service-Key en el mismo requisito.
+- Se describen los esquemas de respuestas correctas, los errores y los estados 201/204 del catálogo, y 200/201/202 de pedidos, con Location y Retry-After cuando corresponde.
+- El parámetro de versión del catálogo muestra 1.0. Se mantienen las URL existentes.
+- Se registran las diferencias de entrada de instrumentos, errores heredados, código de transición inválida y compensación automática en [Comparacion-diseno-implementacion.md](Comparacion-diseno-implementacion.md).
+- Se agregan cuatro comprobaciones de contratos: la suite pasa de 99 a 103 casos definidos; la selección Swagger contiene 11. La compilación y los resultados ejecutados se acreditan por separado.
+
+Las exportaciones de Implementacion deben regenerarse desde ambas APIs reiniciadas con este código. Los JSON originales de diseño permanecen conservados.
