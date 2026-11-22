@@ -1,0 +1,31 @@
+﻿Numero,Tarea,Lista exportada,Miembros asignados,URL
+1,Definir y documentar el caso de negocio MasterMusic,Finalizado,,https://trello.com/c/2wM4uLZ2/1-definir-y-documentar-el-caso-de-negocio-mastermusic
+2,Obtener validación del profesor,Finalizado,,https://trello.com/c/j9jIdv3N/2-obtener-validaci%C3%B3n-del-profesor
+3,Identificar stakeholders y técnicas de elicitación,Finalizado,,https://trello.com/c/BggSQvcx/3-identificar-stakeholders-y-t%C3%A9cnicas-de-elicitaci%C3%B3n
+4,Elaborar ERS con requerimientos funcionales y no funcionales,Finalizado,,https://trello.com/c/A0DdDQ6B/4-elaborar-ers-con-requerimientos-funcionales-y-no-funcionales
+5,Redactar historias de usuario y criterios de aceptación,Finalizado,,https://trello.com/c/VQOWsKd5/5-redactar-historias-de-usuario-y-criterios-de-aceptaci%C3%B3n
+6,Priorizar requerimientos con MoSCoW,Finalizado,,https://trello.com/c/5cDZ3WWC/6-priorizar-requerimientos-con-moscow
+7,Elaborar diagrama UML de casos de uso,Finalizado,,https://trello.com/c/IOchJhew/7-elaborar-diagrama-uml-de-casos-de-uso
+8,Definir metodología Kanban y backlog inicial,Finalizado,,https://trello.com/c/8MpghBgz/8-definir-metodolog%C3%ADa-kanban-y-backlog-inicial
+9,Elaborar diagrama UML de clases,Finalizado,,https://trello.com/c/WSQ42zcW/9-elaborar-diagrama-uml-de-clases
+10,Elaborar diagrama entidad-relación,Finalizado,,https://trello.com/c/1eSqWzpN/10-elaborar-diagrama-entidad-relaci%C3%B3n
+11,Diseñar diagrama de arquitectura,Finalizado,,https://trello.com/c/AY4oLk4P/11-dise%C3%B1ar-diagrama-de-arquitectura
+12,Crear tres diagramas de secuencia,Finalizado,,https://trello.com/c/E1gNxuWO/12-crear-tres-diagramas-de-secuencia
+13,Diseñar diagrama de despliegue,Finalizado,,https://trello.com/c/wE257lRT/13-dise%C3%B1ar-diagrama-de-despliegue
+14,Preparar contratos OpenAPI de ambas APIs,Finalizado,,https://trello.com/c/I2UBtxii/14-preparar-contratos-openapi-de-ambas-apis
+15,Registrar decisiones de arquitectura,Finalizado,,https://trello.com/c/emvaFkCE/15-registrar-decisiones-de-arquitectura
+16,Implementar y verificar API 1,Finalizado,,https://trello.com/c/vi4o97lK/16-implementar-y-verificar-api-1
+17,mplementar y verificar API 2,Finalizado,,https://trello.com/c/U5LzPkLJ/17-mplementar-y-verificar-api-2
+18,Configurar EF Core y migraciones,Finalizado,,https://trello.com/c/DZWkSEjc/18-configurar-ef-core-y-migraciones
+19,Implementar JWT y autorización por roles,Finalizado,,https://trello.com/c/WO9dwhnO/19-implementar-jwt-y-autorizaci%C3%B3n-por-roles
+20,Desarrollar cliente React,Finalizado,,https://trello.com/c/o6Oah7zb/20-desarrollar-cliente-react
+21,ntegrar las APIs mediante IHttpClientFactory,Finalizado,,https://trello.com/c/IZSP09eS/21-ntegrar-las-apis-mediante-ihttpclientfactory
+22,Ejecutar pruebas y registrar resultados,Finalizado,,https://trello.com/c/7ZpsEXX5/22-ejecutar-pruebas-y-registrar-resultados
+23,Documentar revisiones de las tres iteraciones,Finalizado,,https://trello.com/c/kxvgYrV4/23-documentar-revisiones-de-las-tres-iteraciones
+24,Completar informe técnico,Finalizado,,https://trello.com/c/vJc2fGf5/24-completar-informe-t%C3%A9cnico
+25,Preparar matriz de trazabilidad,Finalizado,,https://trello.com/c/0etUGsFf/25-preparar-matriz-de-trazabilidad
+26,Actualizar README y .env.example,Finalizado,,https://trello.com/c/peAa1NXP/26-actualizar-readme-y-envexample
+27,Reunir capturas y reportes de pruebas,Finalizado,,https://trello.com/c/391WW3Mt/27-reunir-capturas-y-reportes-de-pruebas
+28,Documentar retrospectiva del equipo,Finalizado,,https://trello.com/c/EsGdoBAY/28-documentar-retrospectiva-del-equipo
+29,Preparar demostración en vivo,Finalizado,,https://trello.com/c/9pmfrDAN/29-preparar-demostraci%C3%B3n-en-vivo
+30,Preparar defensa individual  Copiar tarjetas de esta semana,Finalizado,,https://trello.com/c/f0fAICYE/30-preparar-defensa-individual-copiar-tarjetas-de-esta-semana
